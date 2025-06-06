@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Notificações de Vendas</title>
+    <!-- Tailwind CSS CDN para estilização rápida e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- NOVOS: Links para o Manifest e Service Worker (essenciais para PWA) -->
+    <link rel="manifest" href="manifest.json">
+    <!-- Adicionando uma meta tag para a cor da barra de status em navegadores -->
+    <meta name="theme-color" content="#22303f"> 
+    
+    <style>
+        /* Estilos personalizados para o corpo e a fonte */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #030e1b
+            ; /* Um cinza escuro para o fundo */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px; /* Espaçamento geral */
+            box-sizing: border-box;
+        }
+
+        /* Contêiner principal do aplicativo */
+        .app-container {
+            background-color: #22303f; /* Fundo mais escuro para o container */
+            padding: 32px;
+            border-radius: 20px; /* Cantos arredondados */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Sombra suave */
+            max-width: 450px; /* Largura máxima para desktop */
+            width: 100%; /* Ocupa toda a largura disponível em telas menores */
+            box-sizing: border-box;
+            position: relative; /* Para posicionamento da notificação */
+        }
+
+        /* Estilo para inputs e selects */
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            margin-top: 8px;
+            border: 1px solid #4a5568; /* Borda mais escura para contraste */
+            border-radius: 12px; /* Cantos arredondados */
+            font-size: 1rem;
+            color: #e2e8f0; /* Texto claro para contraste */
+            background-color: #2d3748; /* Fundo escuro para input */
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box; /* Garante que padding e border não aumentem a largura */
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6; /* Cor da borda ao focar */
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); /* Sombra ao focar */
+        }
+        /* Estilo para labels */
+        label {
+            color: #ffffff; /* Cor das labels: branco */
+            font-size: 1.125rem; /* Tamanho do texto das labels: equivalente a text-lg do Tailwind */
+            font-weight: 500; /* Peso da fonte: semi-negrito */
+            display: block; /* Garante que o label ocupe sua própria linha */
+            margin-bottom: 8px; /* Pequena margem abaixo do label */
+        }
+        /* Estilo para títulos */
+        h1 {
+            color: #ffffff; /* Cor do título agora é branca */
+            margin-bottom: 0px; /* Reduzida para ficar mais próximo do subtítulo */
+        }
+        /* Estilo para o subtítulo */
+        .subtitle {
+            color: rgba(255, 255, 255, 0.35); /* Cor do subtítulo: branco com 35% de opacidade */
+            font-size: 0.875rem; /* Tamanho pequeno (equivalente a text-sm do Tailwind) */
+            text-align: center;
+            margin-top: 0px; /* Reduzida para ficar mais próximo do título */
+            margin-bottom: 24px; /* Espaçamento abaixo do subtítulo */
+            display: block;
+        }
+
+        /* Estilo para os botões */
+        .btn {
+            background-color: #2563eb; /* Azul primário */
+            color: white;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+            width: 100%;
+            display: block; /* Garante que o botão ocupe a largura total */
+            margin-top: 16px; /* Espaçamento entre botões e inputs */
+        }
+        .btn:hover {
+            background-color: #1d4ed8; /* Azul mais escuro ao passar o mouse */
+            transform: translateY(-1px); /* Pequeno efeito de elevação */
+        }
+        .btn:active {
+            transform: translateY(0); /* Volta ao normal ao clicar */
+            box-shadow: 0 2px 5px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-stop {
+            background-color: #ef4444; /* Vermelho para o botão de parar */
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+        }
+        .btn-stop:hover {
+            background-color: #dc2626;
+        }
+
+        /* Estilo da notificação simulada */
+        .simulated-notification {
+            position: fixed; /* Fixa na tela */
+            top: 20px; /* Distância do topo */
+            left: 50%; /* Centraliza horizontalmente */
+            transform: translateX(-50%) translateY(-100px); /* Começa acima da tela, invisível */
+            background-color: rgba(255, 255, 255, 0.95); /* Fundo semi-transparente branco */
+            backdrop-filter: blur(8px); /* Efeito de blur no fundo */
+            -webkit-backdrop-filter: blur(8px); /* Compatibilidade Safari */
+            padding: 16px 20px;
+            border-radius: 16px; /* Cantos mais arredondados */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Sombra mais pronunciada */
+            display: flex;
+            align-items: center;
+            opacity: 0; /* Começa invisível */
+            visibility: hidden; /* Garante que não interfira com cliques */
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out, visibility 0.3s; /* Animação suave */
+            z-index: 1000; /* Garante que fique acima de outros elementos */
+            max-width: 90%; /* Largura máxima para telas menores */
+            box-sizing: border-box; /* Inclui padding e border na largura */
+        }
+
+        /* Animação de entrada da notificação */
+        .simulated-notification.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0); /* Desliza para baixo */
+        }
+        .simulated-notification.hide {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(-50%) translateY(-100px); /* Desliza para cima */
+        }
+
+        /* Estilo do ícone da plataforma na notificação - AJUSTADO PARA UM TAMANHO MÉDIO */
+        .notification-icon {
+            width: 80px; /* Reduzido de 120px para 80px */
+            height: 80px; /* Reduzido de 120px para 80px */
+            border-radius: 20px; /* Ajustado para o novo tamanho */
+            margin-right: 24px; /* Ajustado para acompanhar o tamanho */
+            object-fit: contain; /* Garante que a imagem se ajuste sem cortar */
+        }
+
+        /* Estilo do texto da notificação */
+        .notification-text {
+            font-size: 0.95rem;
+            color: #1f2937; /* Cor do texto */
+            line-height: 1.4;
+            font-weight: 500;
+        }
+
+        /* Ajustes para telas menores */
+        @media (max-width: 640px) {
+            .app-container {
+                padding: 24px;
+                border-radius: 16px;
+            }
+            .form-input {
+                padding: 10px 14px;
+                font-size: 0.95rem;
+            }
+            .btn {
+                padding: 12px 20px;
+                font-size: 0.95rem;
+            }
+            .simulated-notification {
+                padding: 14px 18px;
+                top: 15px;
+                border-radius: 14px;
+            }
+            .notification-icon {
+                width: 64px; /* Ajuste para mobile */
+                height: 64px; /* Ajuste para mobile */
+                margin-right: 20px; /* Ajuste para mobile */
+            }
+            .notification-text {
+                font-size: 0.9rem;
+            }
+            /* Ajuste para labels em telas menores */
+            label {
+                font-size: 1rem; /* Um pouco menor para mobile */
+                margin-bottom: 6px;
+            }
+            /* Ajuste para subtítulo em telas menores */
+            .subtitle {
+                font-size: 0.8rem;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="app-container">
+        <h1 class="text-3xl font-bold text-center mb-0"> <!-- Removido mb-8, ajustado para mb-0 -->
+            Notify Generator
+        </h1>
+        <!-- NOVO: Subtítulo abaixo do título principal -->
+        <p class="subtitle">Created by: @CriptoBoyt</p>
+
+        <div class="mb-6">
+            <label for="platformSelect">
+                Selecione a Plataforma:
+            </label>
+            <select id="platformSelect" class="form-input">
+                <option value="kiwify">Kiwify</option>
+                <option value="cakto">Cakto</option>
+                <option value="kirvano">Kirvano</option>
+                <option value="lastlink">Lastlink</option>
+            </select>
+        </div>
+
+        <div class="mb-6">
+            <label for="commissionInput">
+                Valor da Comissão (R$):
+            </label>
+            <input type="number" id="commissionInput" class="form-input" placeholder="Ex: 29.90" step="0.01">
+        </div>
+
+        <div class="mb-6">
+            <label for="customTextInput">
+                Texto Personalizado (Opcional - Ex: Nome do Produto):
+            </label>
+            <input type="text" id="customTextInput" class="form-input" placeholder="Ex: Produto X">
+        </div>
+
+        <div class="mb-6">
+            <label for="quantityInput">
+                Quantidade de Notificações:
+            </label>
+            <input type="number" id="quantityInput" class="form-input" value="1" min="1">
+        </div>
+
+        <div class="mb-8">
+            <label for="intervalInput">
+                Intervalo entre Notificações (segundos):
+            </label>
+            <input type="number" id="intervalInput" class="form-input" value="3" min="0.5" step="0.5">
+        </div>
+
+        <button id="generateBtn" class="btn">
+            Gerar Notificação(ões)
+        </button>
+        <button id="stopBtn" class="btn btn-stop" style="display: none;">
+            Parar Geração
+        </button>
+
+        <!-- Área para a notificação simulada -->
+        <div id="notificationDisplay" class="simulated-notification">
+            <img id="notificationIcon" src="" alt="Ícone da Plataforma" class="notification-icon">
+            <div>
+                <p id="notificationPlatformName" class="text-gray-900 font-semibold text-sm mb-1"></p>
+                <p id="notificationMessage" class="notification-text"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mapeamento das plataformas com suas logos.
+        // SÓCIO, É MUITO IMPORTANTE: SUBSTITUA OS URLs ABAIXO PELOS LINKS DIRETOS DAS SUAS LOGOS!
+        // Um link direto significa que o URL TERMINA COM A EXTENSÃO DA IMAGEM (.png, .jpg, .svg)
+        // e, ao abrir este URL diretamente em uma aba do navegador, você vê APENAS a imagem.
+        //
+        // O link que você enviou anteriormente (https://imgbb.com/"><img src="https://i.ibb.co/11DqF1w/LOGO-CAKTO-PNG-OFC.png)
+        // CONTINHA CÓDIGO HTML (<img src="...">). O QUE PRECISAMOS É APENAS O CONTEÚDO DO ATRIBUTO 'src'.
+        //
+        // RECOMENDAÇÃO PRINCIPAL: Use o ImgBB (https://imgbb.com/) para hospedar suas logos.
+        // 1. Acesse https://imgbb.com/
+        // 2. Clique em "Start uploading" e selecione sua logo.
+        // 3. Escolha "Don't autodelete" ou defina um tempo de expiração longo.
+        // 4. Clique em "Upload".
+        // 5. Após o upload, procure pela opção "Direct link" (Link Direto) e COPIE APENAS ESSE URL.
+        //    Ele será algo como: https://i.ibb.co/xxxxxxxxx/sua_logo.png
+        const platformData = {
+            'kiwify': {
+                name: 'Kiwify',
+                // SUBSTITUA O PLACEHOLDER ABAIXO pelo seu LINK DIRETO da logo Kiwify
+                logo: 'https://i.ibb.co/8nqXygT5/LOGO-KIWIFY-PNG-OFC.png' 
+            },
+            'cakto': {
+                name: 'Cakto',
+                // ESTE É O SEU LINK DIRETO DA LOGO CAKTO!
+                logo: 'https://i.ibb.co/11DqF1w/LOGO-CAKTO-PNG-OFC.png' 
+            },
+            'kirvano': {
+                name: 'Kirvano',
+                // SUBSTITUA O PLACEHOLDER ABAIXO pelo seu LINK DIRETO da logo Kirvano
+                logo: 'https://i.ibb.co/6Rm5tvjW/LOGO-KIRVANO-PNG-OFC.png' 
+            },
+            'lastlink': {
+                name: 'Lastlink',
+                // SUBSTITUA O PLACEHOLDER ABAIXO pelo seu LINK DIRETO da logo Lastlink
+                logo: 'https://i.ibb.co/Z1ksXk08/LOGO-LASTLINK-PNG-OFC.png' 
+            }
+        };
+
+        // Obtenção dos elementos HTML
+        const platformSelect = document.getElementById('platformSelect');
+        const commissionInput = document.getElementById('commissionInput');
+        const customTextInput = document.getElementById('customTextInput');
+        const quantityInput = document.getElementById('quantityInput');
+        const intervalInput = document.getElementById('intervalInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const stopBtn = document.getElementById('stopBtn'); // Novo botão parar
+        const notificationDisplay = document.getElementById('notificationDisplay');
+        const notificationIcon = document.getElementById('notificationIcon');
+        const notificationPlatformName = document.getElementById('notificationPlatformName');
+        const notificationMessage = document.getElementById('notificationMessage');
+
+        let notificationDisplayTimeout; // Timeout para esconder uma única notificação
+        let notificationSequenceInterval; // Interval para a sequência de notificações
+        let currentNotificationCount = 0; // Contador de notificações geradas na sequência
+
+        // REGISTRAR O SERVICE WORKER (APENAS UMA VEZ AO CARREGAR A PÁGINA)
+        // Isso permite que o app seja "instalado" e funcione offline/como app.
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registrado com sucesso:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Falha no registro do Service Worker:', error);
+                    });
+            });
+        }
+
+
+        // Função para exibir uma única notificação
+        function showNotification(platform, commission, customText) {
+            // Limpa qualquer timeout anterior para garantir que a notificação anterior seja escondida
+            if (notificationDisplayTimeout) {
+                clearTimeout(notificationDisplayTimeout);
+                notificationDisplay.classList.remove('show');
+                notificationDisplay.classList.add('hide');
+                // Força o reflow para garantir que a transição de saída seja aplicada antes da nova entrada
+                void notificationDisplay.offsetWidth;
+            }
+
+            // Formatação do valor da comissão para BRL
+            const formattedCommission = new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(commission);
+
+            // Monta a mensagem da notificação
+            let message = `Venda aprovada: Sua comissão ${formattedCommission}`;
+            if (customText) {
+                message = `Venda aprovada: ${customText} - ${formattedCommission}`;
+            }
+
+            // Atualiza o conteúdo da notificação
+            notificationIcon.src = platform.logo;
+            notificationPlatformName.textContent = platform.name;
+            notificationMessage.textContent = message;
+
+            // Exibe a notificação
+            notificationDisplay.classList.remove('hide'); // Remove classe de esconder se presente
+            notificationDisplay.classList.add('show');
+
+            // Define um timeout para esconder a notificação após 3 segundos
+            notificationDisplayTimeout = setTimeout(() => {
+                notificationDisplay.classList.remove('show');
+                notificationDisplay.classList.add('hide');
+            }, 3000); // Notificação visível por 3 segundos
+        }
+
+        // Função para iniciar a sequência de notificações
+        function startNotificationSequence() {
+            // Esconde o botão Gerar e mostra o botão Parar
+            generateBtn.style.display = 'none';
+            stopBtn.style.display = 'block';
+
+            // Para qualquer sequência existente antes de iniciar uma nova
+            stopNotificationSequence();
+
+            const selectedPlatformId = platformSelect.value;
+            const platform = platformData[selectedPlatformId];
+            
+            let commissionValue = parseFloat(commissionInput.value);
+            // Garante que commissionValue seja um número válido, padrão para 0 se não for
+            if (isNaN(commissionValue) || commissionInput.value.trim() === '') {
+                commissionValue = 0;
+            }
+
+            const customText = customTextInput.value.trim();
+            const quantity = parseInt(quantityInput.value, 10);
+            // Converte segundos para milissegundos para o setInterval
+            const interval = parseFloat(intervalInput.value) * 1000;
+
+            // Validação de inputs
+            if (isNaN(quantity) || quantity < 1) {
+                console.error('Quantidade de notificações inválida. Usando 1.');
+                return;
+            }
+            if (isNaN(interval) || interval < 500) { // Intervalo mínimo de 0.5 segundos (500ms)
+                console.error('Intervalo inválido. Usando 3 segundos.');
+                return;
+            }
+
+            currentNotificationCount = 0; // Reseta o contador
+
+            // Inicia o intervalo para disparar as notificações
+            notificationSequenceInterval = setInterval(() => {
+                if (currentNotificationCount < quantity) {
+                    // Passa o commissionValue já validado
+                    showNotification(platform, commissionValue, customText);
+                    currentNotificationCount++;
+                } else {
+                    stopNotificationSequence(); // Para a sequência quando a quantidade for atingida
+                }
+            }, interval);
+        }
+
+        // Função para parar a sequência de notificações
+        function stopNotificationSequence() {
+            if (notificationSequenceInterval) {
+                clearInterval(notificationSequenceInterval);
+                notificationSequenceInterval = null;
+            }
+            // Esconde qualquer notificação que esteja sendo exibida
+            if (notificationDisplayTimeout) {
+                clearTimeout(notificationDisplayTimeout);
+                notificationDisplay.classList.remove('show');
+                notificationDisplay.classList.add('hide');
+            }
+            // Mostra o botão Gerar e esconde o botão Parar
+            generateBtn.style.display = 'block';
+            stopBtn.style.display = 'none';
+            currentNotificationCount = 0; // Reseta o contador
+        }
+
+        // Adiciona os event listeners aos botões
+        generateBtn.addEventListener('click', startNotificationSequence);
+        stopBtn.addEventListener('click', stopNotificationSequence);
+
+        // Previne o comportamento padrão do Enter em campos de input
+        commissionInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                startNotificationSequence();
+            }
+        });
+        customTextInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                startNotificationSequence();
+            }
+        });
+        quantityInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                startNotificationSequence();
+            }
+        });
+        intervalInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                startNotificationSequence();
+            }
+        });
+    </script>
+</body>
+</html>
