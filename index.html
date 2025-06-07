@@ -17,27 +17,26 @@
         /* Estilos personalizados para o corpo e a fonte */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #030e1b
-            ; /* Um cinza escuro para o fundo */
+            background-color: #030e1b;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 20px; /* Espaçamento geral */
+            padding: 20px;
             box-sizing: border-box;
         }
 
         /* Contêiner principal do aplicativo */
         .app-container {
-            background-color: #22303f; /* Fundo mais escuro para o container */
+            background-color: #22303f;
             padding: 32px;
-            border-radius: 20px; /* Cantos arredondados */
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Sombra suave */
-            max-width: 450px; /* Largura máxima para desktop */
-            width: 100%; /* Ocupa toda a largura disponível em telas menores */
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 450px;
+            width: 100%;
             box-sizing: border-box;
-            position: relative; /* Para posicionamento da notificação */
+            position: relative;
         }
 
         /* Estilo para inputs e selects */
@@ -45,45 +44,45 @@
             width: 100%;
             padding: 12px 16px;
             margin-top: 8px;
-            border: 1px solid #4a5568; /* Borda mais escura para contraste */
-            border-radius: 12px; /* Cantos arredondados */
+            border: 1px solid #4a5568;
+            border-radius: 12px;
             font-size: 1rem;
-            color: #e2e8f0; /* Texto claro para contraste */
-            background-color: #2d3748; /* Fundo escuro para input */
+            color: #e2e8f0;
+            background-color: #2d3748;
             transition: border-color 0.2s, box-shadow 0.2s;
-            box-sizing: border-box; /* Garante que padding e border não aumentem a largura */
+            box-sizing: border-box;
         }
         .form-input:focus {
             outline: none;
-            border-color: #3b82f6; /* Cor da borda ao focar */
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); /* Sombra ao focar */
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
         /* Estilo para labels */
         label {
-            color: #ffffff; /* Cor das labels: branco */
-            font-size: 1.125rem; /* Tamanho do texto das labels: equivalente a text-lg do Tailwind */
-            font-weight: 500; /* Peso da fonte: semi-negrito */
-            display: block; /* Garante que o label ocupe sua própria linha */
-            margin-bottom: 8px; /* Pequena margem abaixo do label */
+            color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 8px;
         }
         /* Estilo para títulos */
         h1 {
-            color: #ffffff; /* Cor do título agora é branca */
-            margin-bottom: 0px; /* Reduzida para ficar mais próximo do subtítulo */
+            color: #ffffff;
+            margin-bottom: 0px;
         }
         /* Estilo para o subtítulo */
         .subtitle {
-            color: rgba(255, 255, 255, 0.35); /* Cor do subtítulo: branco com 35% de opacidade */
-            font-size: 0.875rem; /* Tamanho pequeno (equivalente a text-sm do Tailwind) */
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 0.875rem;
             text-align: center;
-            margin-top: 0px; /* Reduzida para ficar mais próximo do título */
-            margin-bottom: 24px; /* Espaçamento abaixo do subtítulo */
+            margin-top: 0px;
+            margin-bottom: 24px;
             display: block;
         }
 
         /* Estilo para os botões */
         .btn {
-            background-color: #2563eb; /* Azul primário */
+            background-color: #2563eb;
             color: white;
             padding: 14px 24px;
             border-radius: 12px;
@@ -92,73 +91,76 @@
             transition: background-color 0.2s, transform 0.1s;
             box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
             width: 100%;
-            display: block; /* Garante que o botão ocupe a largura total */
-            margin-top: 16px; /* Espaçamento entre botões e inputs */
+            display: block;
+            margin-top: 16px;
         }
         .btn:hover {
-            background-color: #1d4ed8; /* Azul mais escuro ao passar o mouse */
-            transform: translateY(-1px); /* Pequeno efeito de elevação */
+            background-color: #1d4ed8;
+            transform: translateY(-1px);
         }
         .btn:active {
-            transform: translateY(0); /* Volta ao normal ao clicar */
+            transform: translateY(0);
             box-shadow: 0 2px 5px rgba(37, 99, 235, 0.4);
         }
 
         .btn-stop {
-            background-color: #ef4444; /* Vermelho para o botão de parar */
+            background-color: #ef4444;
             box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
         }
         .btn-stop:hover {
             background-color: #dc2626;
         }
-
-        /* Estilo da notificação simulada */
-        .simulated-notification {
-            position: fixed; /* Fixa na tela */
-            top: 20px; /* Distância do topo */
-            left: 50%; /* Centraliza horizontalmente */
-            transform: translateX(-50%) translateY(-100px); /* Começa acima da tela, invisível */
-            background-color: rgba(255, 255, 255, 0.95); /* Fundo semi-transparente branco */
-            backdrop-filter: blur(8px); /* Efeito de blur no fundo */
-            -webkit-backdrop-filter: blur(8px); /* Compatibilidade Safari */
-            padding: 16px 20px;
-            border-radius: 16px; /* Cantos mais arredondados */
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Sombra mais pronunciada */
-            display: flex;
-            align-items: center;
-            opacity: 0; /* Começa invisível */
-            visibility: hidden; /* Garante que não interfira com cliques */
-            transition: opacity 0.3s ease-out, transform 0.3s ease-out, visibility 0.3s; /* Animação suave */
-            z-index: 1000; /* Garante que fique acima de outros elementos */
-            max-width: 90%; /* Largura máxima para telas menores */
-            box-sizing: border-box; /* Inclui padding e border na largura */
+        /* Estilo para botão de ativação de notificações do sistema */
+        .btn-system-notifications {
+            background-color: #10b981; /* Verde */
+            margin-bottom: 24px; /* Espaço extra antes do formulário */
+        }
+        .btn-system-notifications:hover {
+            background-color: #059669;
         }
 
-        /* Animação de entrada da notificação */
+        /* A notificação simulada dentro do app não será mais a principal */
+        /* Mantida para fins de fallback ou visualização interna, mas não será usada para o push do sistema */
+        .simulated-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 16px 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out, visibility 0.3s;
+            z-index: 1000;
+            max-width: 90%;
+            box-sizing: border-box;
+        }
         .simulated-notification.show {
             opacity: 1;
             visibility: visible;
-            transform: translateX(-50%) translateY(0); /* Desliza para baixo */
+            transform: translateX(-50%) translateY(0);
         }
         .simulated-notification.hide {
             opacity: 0;
             visibility: hidden;
-            transform: translateX(-50%) translateY(-100px); /* Desliza para cima */
+            transform: translateX(-50%) translateY(-100px);
         }
-
-        /* Estilo do ícone da plataforma na notificação - AJUSTADO PARA UM TAMANHO MÉDIO */
         .notification-icon {
-            width: 80px; /* Reduzido de 120px para 80px */
-            height: 80px; /* Reduzido de 120px para 80px */
-            border-radius: 20px; /* Ajustado para o novo tamanho */
-            margin-right: 24px; /* Ajustado para acompanhar o tamanho */
-            object-fit: contain; /* Garante que a imagem se ajuste sem cortar */
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            margin-right: 24px;
+            object-fit: contain;
         }
-
-        /* Estilo do texto da notificação */
         .notification-text {
             font-size: 0.95rem;
-            color: #1f2937; /* Cor do texto */
+            color: #1f2937;
             line-height: 1.4;
             font-weight: 500;
         }
@@ -178,24 +180,22 @@
                 font-size: 0.95rem;
             }
             .simulated-notification {
-                padding: 14px 18px;
+                padding: 14px;
                 top: 15px;
                 border-radius: 14px;
             }
             .notification-icon {
-                width: 64px; /* Ajuste para mobile */
-                height: 64px; /* Ajuste para mobile */
-                margin-right: 20px; /* Ajuste para mobile */
+                width: 64px;
+                height: 64px;
+                margin-right: 20px;
             }
             .notification-text {
                 font-size: 0.9rem;
             }
-            /* Ajuste para labels em telas menores */
             label {
-                font-size: 1rem; /* Um pouco menor para mobile */
+                font-size: 1rem;
                 margin-bottom: 6px;
             }
-            /* Ajuste para subtítulo em telas menores */
             .subtitle {
                 font-size: 0.8rem;
                 margin-bottom: 20px;
@@ -205,11 +205,14 @@
 </head>
 <body class="antialiased">
     <div class="app-container">
-        <h1 class="text-3xl font-bold text-center mb-0"> <!-- Removido mb-8, ajustado para mb-0 -->
+        <h1 class="text-3xl font-bold text-center mb-0">
             Notify Generator
         </h1>
-        <!-- NOVO: Subtítulo abaixo do título principal -->
         <p class="subtitle">Created by: @CriptoBoyt</p>
+
+        <button id="activateSystemNotificationsBtn" class="btn btn-system-notifications">
+            Ativar Notificações do Sistema
+        </button>
 
         <div class="mb-6">
             <label for="platformSelect">
@@ -252,14 +255,14 @@
         </div>
 
         <button id="generateBtn" class="btn">
-            Gerar Notificação(ões)
+            Gerar Notificação(ões) no Sistema
         </button>
         <button id="stopBtn" class="btn btn-stop" style="display: none;">
             Parar Geração
         </button>
 
-        <!-- Área para a notificação simulada -->
-        <div id="notificationDisplay" class="simulated-notification">
+        <!-- A notificação simulada dentro do app não será mais usada para push do sistema -->
+        <div id="notificationDisplay" class="simulated-notification" style="display: none;">
             <img id="notificationIcon" src="" alt="Ícone da Plataforma" class="notification-icon">
             <div>
                 <p id="notificationPlatformName" class="text-gray-900 font-semibold text-sm mb-1"></p>
@@ -271,39 +274,22 @@
     <script>
         // Mapeamento das plataformas com suas logos.
         // SÓCIO, É MUITO IMPORTANTE: SUBSTITUA OS URLs ABAIXO PELOS LINKS DIRETOS DAS SUAS LOGOS!
-        // Um link direto significa que o URL TERMINA COM A EXTENSÃO DA IMAGEM (.png, .jpg, .svg)
-        // e, ao abrir este URL diretamente em uma aba do navegador, você vê APENAS a imagem.
-        //
-        // O link que você enviou anteriormente (https://imgbb.com/"><img src="https://i.ibb.co/11DqF1w/LOGO-CAKTO-PNG-OFC.png)
-        // CONTINHA CÓDIGO HTML (<img src="...">). O QUE PRECISAMOS É APENAS O CONTEÚDO DO ATRIBUTO 'src'.
-        //
-        // RECOMENDAÇÃO PRINCIPAL: Use o ImgBB (https://imgbb.com/) para hospedar suas logos.
-        // 1. Acesse https://imgbb.com/
-        // 2. Clique em "Start uploading" e selecione sua logo.
-        // 3. Escolha "Don't autodelete" ou defina um tempo de expiração longo.
-        // 4. Clique em "Upload".
-        // 5. Após o upload, procure pela opção "Direct link" (Link Direto) e COPIE APENAS ESSE URL.
-        //    Ele será algo como: https://i.ibb.co/xxxxxxxxx/sua_logo.png
         const platformData = {
             'kiwify': {
                 name: 'Kiwify',
-                // SUBSTITUA O PLACEHOLDER ABAIXO pelo seu LINK DIRETO da logo Kiwify
-                logo: 'https://i.ibb.co/8nqXygT5/LOGO-KIWIFY-PNG-OFC.png' 
+                logo: 'https://i.ibb.co/8nqXygT5/LOGO-KIWIFY-PNG-OFC.png'
             },
             'cakto': {
                 name: 'Cakto',
-                // ESTE É O SEU LINK DIRETO DA LOGO CAKTO!
-                logo: 'https://i.ibb.co/11DqF1w/LOGO-CAKTO-PNG-OFC.png' 
+                logo: 'https://i.ibb.co/11DqF1w/LOGO-CAKTO-PNG-OFC.png'
             },
             'kirvano': {
                 name: 'Kirvano',
-                // SUBSTITUA O PLACEHOLDER ABAIXO pelo seu LINK DIRETO da logo Kirvano
-                logo: 'https://i.ibb.co/6Rm5tvjW/LOGO-KIRVANO-PNG-OFC.png' 
+                logo: 'https://i.ibb.co/6Rm5tvjW/LOGO-KIRVANO-PNG-OFC.png'
             },
             'lastlink': {
                 name: 'Lastlink',
-                // SUBSTITUA O PLACEHOLDER ABAIXO pelo seu LINK DIRETO da logo Lastlink
-                logo: 'https://i.ibb.co/Z1ksXk08/LOGO-LASTLINK-PNG-OFC.png' 
+                logo: 'https://i.ibb.co/Z1ksXk08/LOGO-LASTLINK-PNG-OFC.png'
             }
         };
 
@@ -314,40 +300,121 @@
         const quantityInput = document.getElementById('quantityInput');
         const intervalInput = document.getElementById('intervalInput');
         const generateBtn = document.getElementById('generateBtn');
-        const stopBtn = document.getElementById('stopBtn'); // Novo botão parar
-        const notificationDisplay = document.getElementById('notificationDisplay');
-        const notificationIcon = document.getElementById('notificationIcon');
-        const notificationPlatformName = document.getElementById('notificationPlatformName');
-        const notificationMessage = document.getElementById('notificationMessage');
+        const stopBtn = document.getElementById('stopBtn');
+        const activateSystemNotificationsBtn = document.getElementById('activateSystemNotificationsBtn'); // Novo botão
 
-        let notificationDisplayTimeout; // Timeout para esconder uma única notificação
-        let notificationSequenceInterval; // Interval para a sequência de notificações
-        let currentNotificationCount = 0; // Contador de notificações geradas na sequência
+        let notificationSequenceInterval;
+        let currentNotificationCount = 0;
+        let pushSubscription = null; // Armazenará a inscrição do push notification
 
-        // REGISTRAR O SERVICE WORKER (APENAS UMA VEZ AO CARREGAR A PÁGINA)
-        // Isso permite que o app seja "instalado" e funcione offline/como app.
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js')
-                    .then(registration => {
-                        console.log('Service Worker registrado com sucesso:', registration);
-                    })
-                    .catch(error => {
-                        console.log('Falha no registro do Service Worker:', error);
+        // Endpoint de Backend para ENVIAR a notificação.
+        // SÓCIO: VOCÊ PRECISA IMPLEMENTAR ESTE BACKEND!
+        // Este URL deve apontar para o seu servidor que vai receber a solicitação
+        // e enviar a notificação push via FCM/APNs.
+        const BACKEND_PUSH_ENDPOINT = 'https://SEU_ENDPOINT_DE_BACKEND_AQUI/send-push'; 
+        // Exemplo: se usar Netlify Functions, pode ser 'https://seu-site.netlify.app/.netlify/functions/send-push'
+
+        // --- Lógica de Push Notifications do Sistema ---
+
+        // Função para pedir permissão e registrar Service Worker para Push
+        async function requestNotificationPermissionAndSubscribe() {
+            if (!('serviceWorker' in navigator)) {
+                console.warn('Service Worker não é suportado neste navegador.');
+                alert('Seu navegador não suporta Service Workers, o que é necessário para notificações do sistema.');
+                return;
+            }
+            if (!('PushManager' in window)) {
+                console.warn('Push API não é suportada neste navegador.');
+                alert('Seu navegador não suporta a Push API para notificações do sistema.');
+                return;
+            }
+
+            try {
+                // 1. Pedir permissão ao usuário
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') {
+                    console.error('Permissão para notificações não concedida.');
+                    alert('Permissão para notificações não concedida. Não será possível enviar notificações do sistema.');
+                    return;
+                }
+                console.log('Permissão para notificações concedida!');
+
+                // 2. Obter o registro do Service Worker
+                const registration = await navigator.serviceWorker.getRegistration();
+                if (!registration) {
+                    console.error('Nenhum Service Worker registrado.');
+                    alert('Nenhum Service Worker registrado. Por favor, recarregue a página.');
+                    return;
+                }
+
+                // 3. Obter ou criar uma inscrição (subscription) para push notifications
+                pushSubscription = await registration.pushManager.getSubscription();
+                if (pushSubscription === null) {
+                    // Se não há inscrição, crie uma nova
+                    // O VAPID public key é crucial para autenticar seu backend com o serviço de push.
+                    // SÓCIO: SUBSTITUA PELA SUA CHAVE PÚBLICA VAPID!
+                    // Esta chave é gerada pelo seu backend que usa o FCM/Web-Push.
+                    const VAPID_PUBLIC_KEY = BOJ7ytg758AWbOBiIqxeUYpOJFQ024uUkV8r4wuV0Vr_o-majtDVxwxxRmf3DzU7OCnKfR4NLaOzU3q_PL_kqqI; 
+                    
+                    if (VAPID_PUBLIC_KEY === 'SEU_VAPID_PUBLIC_KEY_AQUI' || !VAPID_PUBLIC_KEY) {
+                        alert('Por favor, configure sua chave VAPID pública no código JavaScript para ativar notificações push.');
+                        console.error('Chave VAPID pública ausente. Não é possível se inscrever para notificações push.');
+                        return;
+                    }
+
+                    pushSubscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true, // Sempre visível para o usuário
+                        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
                     });
-            });
+                    console.log('Inscrição Push criada:', pushSubscription);
+                    alert('Notificações do sistema ativadas com sucesso! Agora você pode gerar notificações no sistema.');
+                } else {
+                    console.log('Inscrição Push existente:', pushSubscription);
+                    alert('Notificações do sistema já estão ativas!');
+                }
+                
+                // Opcional: Enviar a inscrição para o seu backend para que ele saiba para onde enviar
+                // console.log('Enviando inscrição para o backend...');
+                // await fetch(`${BACKEND_PUSH_ENDPOINT}/subscribe`, {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify(pushSubscription)
+                // });
+
+            } catch (error) {
+                console.error('Erro ao ativar notificações do sistema:', error);
+                alert(`Erro ao ativar notificações do sistema: ${error.message}. Verifique o console.`);
+            }
         }
 
+        // Função utilitária para converter Base64 URL para Uint8Array
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding)
+                .replace(/\-/g, '+')
+                .replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
 
-        // Função para exibir uma única notificação
-        function showNotification(platform, commission, customText) {
-            // Limpa qualquer timeout anterior para garantir que a notificação anterior seja escondida
-            if (notificationDisplayTimeout) {
-                clearTimeout(notificationDisplayTimeout);
-                notificationDisplay.classList.remove('show');
-                notificationDisplay.classList.add('hide');
-                // Força o reflow para garantir que a transição de saída seja aplicada antes da nova entrada
-                void notificationDisplay.offsetWidth;
+        // --- Lógica de Geração e Envio de Notificações ---
+
+        // Função para enviar uma notificação push via backend
+        async function sendPushNotificationToSystem(platform, commission, customText) {
+            if (!pushSubscription) {
+                alert('Por favor, ative as notificações do sistema primeiro (clique no botão verde).');
+                console.warn('Não há inscrição push ativa. Notificação do sistema não enviada.');
+                return;
+            }
+
+            // Validação básica do valor da comissão
+            if (isNaN(commission) || commission === null) {
+                commission = 0; // Define como 0 se for inválido
+                console.warn('Valor de comissão inválido. Usando 0.');
             }
 
             // Formatação do valor da comissão para BRL
@@ -358,29 +425,50 @@
                 maximumFractionDigits: 2
             }).format(commission);
 
-            // Monta a mensagem da notificação
-            let message = `Venda aprovada: Sua comissão ${formattedCommission}`;
+            // Monta a mensagem e dados para enviar ao backend
+            let title = platform.name;
+            let body = `Venda aprovada: Sua comissão ${formattedCommission}`;
             if (customText) {
-                message = `Venda aprovada: ${customText} - ${formattedCommission}`;
+                body = `Venda aprovada: ${customText} - ${formattedCommission}`;
             }
 
-            // Atualiza o conteúdo da notificação
-            notificationIcon.src = platform.logo;
-            notificationPlatformName.textContent = platform.name;
-            notificationMessage.textContent = message;
+            const notificationPayload = {
+                title: title,
+                body: body,
+                icon: platform.logo, // Ícone da plataforma na notificação do sistema
+                data: {
+                    url: window.location.origin // O que acontece ao clicar na notificação
+                }
+            };
 
-            // Exibe a notificação
-            notificationDisplay.classList.remove('hide'); // Remove classe de esconder se presente
-            notificationDisplay.classList.add('show');
+            try {
+                // Envia a solicitação para o seu backend
+                const response = await fetch(BACKEND_PUSH_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        subscription: pushSubscription, // Envia a inscrição para o backend
+                        payload: notificationPayload
+                    })
+                });
 
-            // Define um timeout para esconder a notificação após 3 segundos
-            notificationDisplayTimeout = setTimeout(() => {
-                notificationDisplay.classList.remove('show');
-                notificationDisplay.classList.add('hide');
-            }, 3000); // Notificação visível por 3 segundos
+                if (response.ok) {
+                    console.log('Solicitação de notificação push enviada ao backend com sucesso!');
+                    // A notificação real aparecerá na barra de notificações do sistema, não aqui.
+                } else {
+                    const errorData = await response.json();
+                    console.error('Falha ao enviar notificação push ao backend:', response.status, errorData);
+                    alert(`Falha ao enviar notificação push: ${errorData.message || response.statusText}`);
+                }
+            } catch (error) {
+                console.error('Erro de rede ao enviar notificação push:', error);
+                alert(`Erro de rede ao enviar notificação: ${error.message}. Verifique a conexão e o endpoint do backend.`);
+            }
         }
 
-        // Função para iniciar a sequência de notificações
+        // Função para iniciar a sequência de notificações push
         function startNotificationSequence() {
             // Esconde o botão Gerar e mostra o botão Parar
             generateBtn.style.display = 'none';
@@ -393,36 +481,38 @@
             const platform = platformData[selectedPlatformId];
             
             let commissionValue = parseFloat(commissionInput.value);
-            // Garante que commissionValue seja um número válido, padrão para 0 se não for
             if (isNaN(commissionValue) || commissionInput.value.trim() === '') {
                 commissionValue = 0;
             }
 
             const customText = customTextInput.value.trim();
             const quantity = parseInt(quantityInput.value, 10);
-            // Converte segundos para milissegundos para o setInterval
             const interval = parseFloat(intervalInput.value) * 1000;
 
-            // Validação de inputs
             if (isNaN(quantity) || quantity < 1) {
-                console.error('Quantidade de notificações inválida. Usando 1.');
+                alert('Por favor, insira uma quantidade válida de notificações (mínimo 1).');
                 return;
             }
-            if (isNaN(interval) || interval < 500) { // Intervalo mínimo de 0.5 segundos (500ms)
-                console.error('Intervalo inválido. Usando 3 segundos.');
+            if (isNaN(interval) || interval < 500) {
+                alert('Por favor, insira um intervalo válido (mínimo 0.5 segundos).');
                 return;
             }
 
-            currentNotificationCount = 0; // Reseta o contador
+            if (!pushSubscription) {
+                alert('Por favor, ative as notificações do sistema primeiro (clique no botão verde) antes de gerar a sequência.');
+                stopNotificationSequence(); // Garante que botões voltem ao normal
+                return;
+            }
 
-            // Inicia o intervalo para disparar as notificações
+            currentNotificationCount = 0;
+
+            // Inicia o intervalo para disparar as notificações push
             notificationSequenceInterval = setInterval(() => {
                 if (currentNotificationCount < quantity) {
-                    // Passa o commissionValue já validado
-                    showNotification(platform, commissionValue, customText);
+                    sendPushNotificationToSystem(platform, commissionValue, customText);
                     currentNotificationCount++;
                 } else {
-                    stopNotificationSequence(); // Para a sequência quando a quantidade for atingida
+                    stopNotificationSequence();
                 }
             }, interval);
         }
@@ -431,49 +521,44 @@
         function stopNotificationSequence() {
             if (notificationSequenceInterval) {
                 clearInterval(notificationSequenceInterval);
-                notificationSequenceInterval = null;
-            }
-            // Esconde qualquer notificação que esteja sendo exibida
-            if (notificationDisplayTimeout) {
-                clearTimeout(notificationDisplayTimeout);
-                notificationDisplay.classList.remove('show');
-                notificationDisplay.classList.add('hide');
             }
             // Mostra o botão Gerar e esconde o botão Parar
             generateBtn.style.display = 'block';
             stopBtn.style.display = 'none';
-            currentNotificationCount = 0; // Reseta o contador
+            currentNotificationCount = 0;
         }
 
-        // Adiciona os event listeners aos botões
+        // Event Listeners
+        activateSystemNotificationsBtn.addEventListener('click', requestNotificationPermissionAndSubscribe);
         generateBtn.addEventListener('click', startNotificationSequence);
         stopBtn.addEventListener('click', stopNotificationSequence);
 
         // Previne o comportamento padrão do Enter em campos de input
-        commissionInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                startNotificationSequence();
-            }
+        const inputElements = [commissionInput, customTextInput, quantityInput, intervalInput];
+        inputElements.forEach(input => {
+            input.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    startNotificationSequence();
+                }
+            });
         });
-        customTextInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                startNotificationSequence();
+
+        // Opcional: Verifique o status da permissão e da inscrição ao carregar a página
+        async function checkSubscriptionStatus() {
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                const registration = await navigator.serviceWorker.getRegistration();
+                if (registration) {
+                    pushSubscription = await registration.pushManager.getSubscription();
+                    if (pushSubscription) {
+                        console.log('Inscrição Push ativa ao carregar a página.');
+                    } else {
+                        console.log('Nenhuma inscrição Push ativa ao carregar a página.');
+                    }
+                }
             }
-        });
-        quantityInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                startNotificationSequence();
-            }
-        });
-        intervalInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                startNotificationSequence();
-            }
-        });
+        }
+        checkSubscriptionStatus();
     </script>
 </body>
 </html>
