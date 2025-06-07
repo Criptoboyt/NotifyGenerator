@@ -352,13 +352,14 @@
                 if (pushSubscription === null) {
                     // Se não há inscrição, crie uma nova
                     // O VAPID public key é crucial para autenticar seu backend com o serviço de push.
-                    // SÓCIO: SUBSTITUA PELA SUA CHAVE PÚBLICA VAPID!
+                    // SÓCIO: SUBSTITUA PELA SUA CHAVE PÚBLICA VAPID AQUI!
                     // Esta chave é gerada pelo seu backend que usa o FCM/Web-Push.
-                    const VAPID_PUBLIC_KEY = BOJ7ytg758AWbOBiIqxeUYpOJFQ024uUkV8r4wuV0Vr_o-majtDVxwxxRmf3DzU7OCnKfR4NLaOzU3q_PL_kqqI; 
+                    // A CHAVE DEVE ESTAR ENTRE ASPAS SIMPLES!
+                    const VAPID_PUBLIC_KEY = 'BOJ7ytg758AWbOBiIqxeUYpOJFQ024uUkV8r4wuV0Vr_o-majtDVxwxxRmf3DzU7OCnKfR4NLaOzU3q_PL_kqqI'; 
                     
                     if (VAPID_PUBLIC_KEY === 'SEU_VAPID_PUBLIC_KEY_AQUI' || !VAPID_PUBLIC_KEY) {
-                        alert('Por favor, configure sua chave VAPID pública no código JavaScript para ativar notificações push.');
-                        console.error('Chave VAPID pública ausente. Não é possível se inscrever para notificações push.');
+                        alert('Por favor, configure sua chave VAPID pública no código JavaScript para ativar notificações push. Ela deve estar entre aspas simples.');
+                        console.error('Chave VAPID pública ausente ou incorreta. Não é possível se inscrever para notificações push.');
                         return;
                     }
 
