@@ -13,8 +13,9 @@
     <meta name="theme-color" content="#22303f"> 
     
     <!-- **CÓDIGO DE INTEGRAÇÃO DO ONESIGNAL** -->
-    <!-- Este script carrega o SDK principal do OneSignal DIRETAMENTE DA CDN -->
-    <script src="https://cdn.onesignal.com/sdks/web/v10/OneSignalSDK.page.js" defer></script> 
+    <!-- Este script carrega o SDK principal do OneSignal AGORA LOCALMENTE -->
+    <!-- MUDANÇA CRUCIAL: O "src" AGORA APONTA PARA O ARQUIVO LOCAL! -->
+    <script src="OneSignalSDK.page.js" defer></script> 
     <script>
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
