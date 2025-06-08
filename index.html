@@ -13,8 +13,8 @@
     <meta name="theme-color" content="#22303f"> 
     
     <!-- **CÓDIGO DE INTEGRAÇÃO DO ONESIGNAL** -->
-    <!-- Este script carrega o SDK principal do OneSignal -->
-    <script src="https://cdn.onesignal.com/sdks/web/v10/OneSignalSDK.page.js" defer></script>
+    <!-- Este script carrega o SDK principal do OneSignal DIRETAMENTE DA CDN -->
+    <script src="https://cdn.onesignal.com/sdks/web/v10/OneSignalSDK.page.js" defer></script> 
     <script>
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
@@ -23,7 +23,7 @@
         await OneSignal.init({
           appId: "35838c3a-dc5d-4920-8b1b-117eedd90dba", // SUBSTITUA AQUI COM O SEU APP ID REAL DO ONESIGNAL!
           // Isso configura o Service Worker do OneSignal (OneSignalSDKWorker.js)
-          // Ele deve estar na raiz do seu site (mesma pasta do index.html)
+          // Ele DEVE ESTAR na raiz do seu site (mesma pasta do index.html)
           serviceWorkerPath: "OneSignalSDKWorker.js", 
         });
 
@@ -317,7 +317,7 @@
         async function startNotificationSequence() {
             // Verifica se o OneSignal está pronto antes de tentar gerar notificações
             if (typeof OneSignal === 'undefined' || !OneSignal.Notifications) {
-                alert('OneSignal ainda não foi inicializado. Por favor, aguarde alguns segundos e tente novamente. Certifique-se de que o OneSignalSDK.page.js e o OneSignalSDKWorker.js estão na raiz do seu site.');
+                alert('OneSignal ainda não foi inicializado. Por favor, aguarde alguns segundos e tente novamente. Certifique-se de que OneSignalSDK.page.js e OneSignalSDKWorker.js estão na raiz do seu site.');
                 return;
             }
 
