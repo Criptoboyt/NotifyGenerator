@@ -14,7 +14,6 @@
     
     <!-- **CÓDIGO DE INTEGRAÇÃO DO ONESIGNAL** -->
     <!-- Este script carrega o SDK principal do OneSignal AGORA LOCALMENTE -->
-    <!-- MUDANÇA CRUCIAL: O "src" AGORA APONTA PARA O ARQUIVO LOCAL! -->
     <script src="OneSignalSDK.page.js" defer></script> 
     <script>
       window.OneSignalDeferred = window.OneSignalDeferred || [];
@@ -23,8 +22,6 @@
         // Você encontra ele no painel do OneSignal, em "Settings" > "Keys & IDs"
         await OneSignal.init({
           appId: "35838c3a-dc5d-4920-8b1b-117eedd90dba", // SUBSTITUA AQUI COM O SEU APP ID REAL DO ONESIGNAL!
-          // Isso configura o Service Worker do OneSignal (OneSignalSDKWorker.js)
-          // Ele DEVE ESTAR na raiz do seu site (mesma pasta do index.html)
           serviceWorkerPath: "OneSignalSDKWorker.js", 
         });
 
@@ -42,9 +39,9 @@
         OneSignal.Notifications.addEventListener('subscriptionchange', function(isSubscribed) {
           console.log("Status de inscrição do OneSignal:", isSubscribed);
           if (isSubscribed) {
-            console.log("Usuário inscrito para notificações push!");
+            alert("Sucesso! Usuário inscrito para notificações push no OneSignal."); // ALERTA DE DEBUG
           } else {
-            console.log("Usuário não inscrito para notificações push.");
+            alert("Alerta: Usuário não inscrito para notificações push no OneSignal."); // ALERTA DE DEBUG
           }
         });
 
@@ -265,13 +262,22 @@
         // Função para enviar uma notificação push via OneSignal
         async function sendPushNotificationToOneSignal(platform, commission, customText) {
             // Verifica se o OneSignal está pronto e se o usuário está inscrito
-            if (typeof OneSignal === 'undefined' || !OneSignal.Notifications || !(await OneSignal.Notifications.isPushEnabled())) {
-                alert('As notificações do sistema não estão ativas. Por favor, permita as notificações no pop-up do navegador para receber.');
+            if (typeof OneSignal === 'undefined' || !OneSignal.Notifications) {
+                alert('OneSignal não foi inicializado. Por favor, aguarde alguns segundos e tente novamente. Certifique-se de que OneSignalSDK.page.js e OneSignalSDKWorker.js estão na raiz do seu site.');
                 console.warn('OneSignal não está pronto ou usuário não inscrito. Notificação do sistema não enviada.');
-                // Tenta pedir permissão se não estiver ativo
-                await OneSignal.Notifications.requestPermission();
                 return;
             }
+            if (!(await OneSignal.Notifications.isPushEnabled())) {
+                alert('Permissão para notificações não concedida. Tentando solicitar permissão...'); // ALERTA DE DEBUG
+                await OneSignal.Notifications.requestPermission();
+                if (!(await OneSignal.Notifications.isPushEnabled())) {
+                    alert('Permissão ainda não concedida após a solicitação. Verifique as configurações do navegador/OS.'); // ALERTA DE DEBUG
+                    return;
+                }
+            } else {
+                alert('OneSignal pronto e permissão concedida. Tentando disparar notificação.'); // ALERTA DE DEBUG
+            }
+
 
             // Formatação do valor da comissão para BRL
             const formattedCommission = new Intl.NumberFormat('pt-BR', {
@@ -288,8 +294,6 @@
                 body = `Venda aprovada: ${customText} - ${formattedCommission}`;
             }
 
-            // O OneSignal enviará a notificação para VOCÊ, o usuário que está acessando o site.
-            // Para enviar para outros usuários ou segmentos, você precisaria de mais lógica (API REST do OneSignal).
             try {
                 // Notificação para o usuário atual que está navegando no site
                 await OneSignal.Notifications.triggerLocalNotification({
@@ -301,16 +305,11 @@
                     }
                 });
                 console.log('Notificação local do OneSignal disparada com sucesso!');
-
-                // NOTA: Para enviar notificações para usuários offline ou segmentados,
-                // você precisaria da REST API do OneSignal, que exige uma chave de API REST.
-                // Isso normalmente é feito de um BACKEND SEPARADO.
-                // Para o seu caso de "provas sociais" e para você mesmo receber, a notificação local
-                // (disparada pelo OneSignal SDK no navegador) funciona como uma push notification real.
+                alert('Notificação disparada! Verifique a barra de notificações do seu celular.'); // ALERTA DE DEBUG
 
             } catch (error) {
                 console.error('Erro ao enviar notificação OneSignal:', error);
-                alert(`Erro ao enviar notificação: ${error.message}. Verifique o console.`);
+                alert(`Erro ao disparar notificação: ${error.message}. Verifique o console.`); // ALERTA DE DEBUG
             }
         }
 
