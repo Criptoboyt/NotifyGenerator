@@ -19,35 +19,32 @@
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
         // SÓCIO: COLOQUE SEU ONESIGNAL APP ID AQUI!
-        // Você encontra ele no painel do OneSignal, em "Settings" > "Keys & IDs"
         await OneSignal.init({
-          appId: "35838c3a-dc5d-4920-8b1b-117eedd90dba", // SUBSTITUA AQUI COM O SEU APP ID REAL DO ONESIGNAL!
+          appId: "35838c3a-dc5d-4920-8b1b-117eed90dba", // SUBSTITUA AQUI COM O SEU APP ID REAL DO ONESIGNAL!
           serviceWorkerPath: "OneSignalSDKWorker.js", 
         });
 
-        // Opcional: Para pedir permissão automaticamente ou em um momento específico
-        // OneSignal.Notifications.requestPermission(); 
-        
-        // Exemplo: Disparar um evento de teste de permissão após 5 segundos
-        // setTimeout(() => {
-        //   if (OneSignal.Notifications.permission !== 'granted') {
-        //     OneSignal.Notifications.requestPermission();
-        //   }
-        // }, 5000); // Pede permissão após 5 segundos se ainda não foi concedida
+        console.log("OneSignal SDK inicializado."); // DEBUG
 
-        // Adicionar listener para quando o usuário se inscreve
+        // Listener para quando o usuário se inscreve
         OneSignal.Notifications.addEventListener('subscriptionchange', function(isSubscribed) {
           console.log("Status de inscrição do OneSignal:", isSubscribed);
           if (isSubscribed) {
-            alert("Sucesso! Usuário inscrito para notificações push no OneSignal."); // ALERTA DE DEBUG
+            alert("DEBUG: Sucesso! Usuário inscrito para notificações push no OneSignal."); // ALERTA DE DEBUG
           } else {
-            alert("Alerta: Usuário não inscrito para notificações push no OneSignal."); // ALERTA DE DEBUG
+            alert("DEBUG: Alerta: Usuário não inscrito para notificações push no OneSignal. Verifique permissões."); // ALERTA DE DEBUG
           }
         });
 
-        // Opcional: Obter o ID do usuário OneSignal para envios direcionados (avançado)
-        // const userId = await OneSignal.User.PushSubscription.getEphemeralId();
-        // console.log("OneSignal User ID:", userId);
+        // Tentar pedir permissão logo após a inicialização, se não for concedida
+        OneSignal.Notifications.requestPermission().then(permission => {
+            console.log("DEBUG: Permissão de notificação inicial:", permission); // DEBUG
+            if (permission === 'granted') {
+                console.log("DEBUG: Permissão concedida na inicialização."); // DEBUG
+            } else {
+                console.log("DEBUG: Permissão negada na inicialização."); // DEBUG
+            }
+        });
       });
     </script>
     <!-- **FIM DO CÓDIGO DO ONESIGNAL** -->
@@ -223,6 +220,10 @@
     </div>
 
     <script>
+        // Este alerta deve aparecer assim que a página carrega.
+        alert("DEBUG: App Carregado!"); 
+        console.log("DEBUG: App Carregado!"); // DEBUG
+        
         // Mapeamento das plataformas com suas logos.
         const platformData = {
             'kiwify': {
@@ -251,8 +252,6 @@
         const intervalInput = document.getElementById('intervalInput');
         const generateBtn = document.getElementById('generateBtn');
         const stopBtn = document.getElementById('stopBtn');
-        // O botão 'activateSystemNotificationsBtn' e sua lógica foram removidos
-        // pois o OneSignal lida com a permissão de notificação automaticamente.
 
         let notificationSequenceInterval;
         let currentNotificationCount = 0;
@@ -261,21 +260,29 @@
 
         // Função para enviar uma notificação push via OneSignal
         async function sendPushNotificationToOneSignal(platform, commission, customText) {
+            console.log("DEBUG: sendPushNotificationToOneSignal chamada."); // DEBUG
             // Verifica se o OneSignal está pronto e se o usuário está inscrito
             if (typeof OneSignal === 'undefined' || !OneSignal.Notifications) {
-                alert('OneSignal não foi inicializado. Por favor, aguarde alguns segundos e tente novamente. Certifique-se de que OneSignalSDK.page.js e OneSignalSDKWorker.js estão na raiz do seu site.');
-                console.warn('OneSignal não está pronto ou usuário não inscrito. Notificação do sistema não enviada.');
+                alert('DEBUG: OneSignal não inicializado na chamada de envio. Verifique console.'); // ALERTA DE DEBUG
+                console.warn('OneSignal não inicializado. Notificação do sistema não enviada.');
                 return;
             }
-            if (!(await OneSignal.Notifications.isPushEnabled())) {
-                alert('Permissão para notificações não concedida. Tentando solicitar permissão...'); // ALERTA DE DEBUG
+
+            const isPushEnabled = await OneSignal.Notifications.isPushEnabled();
+            console.log("DEBUG: isPushEnabled:", isPushEnabled); // DEBUG
+
+            if (!isPushEnabled) {
+                alert('DEBUG: Permissão para notificações não concedida. Tentando solicitar permissão...'); // ALERTA DE DEBUG
                 await OneSignal.Notifications.requestPermission();
-                if (!(await OneSignal.Notifications.isPushEnabled())) {
-                    alert('Permissão ainda não concedida após a solicitação. Verifique as configurações do navegador/OS.'); // ALERTA DE DEBUG
+                const isPushEnabledAfterRequest = await OneSignal.Notifications.isPushEnabled();
+                if (!isPushEnabledAfterRequest) {
+                    alert('DEBUG: Permissão ainda não concedida após a solicitação. Notificação não enviada. Verifique as configurações do navegador/OS.'); // ALERTA DE DEBUG
                     return;
+                } else {
+                    alert('DEBUG: Permissão concedida após solicitação. Tentando disparar notificação.'); // ALERTA DE DEBUG
                 }
             } else {
-                alert('OneSignal pronto e permissão concedida. Tentando disparar notificação.'); // ALERTA DE DEBUG
+                alert('DEBUG: OneSignal pronto e permissão concedida. Tentando disparar notificação.'); // ALERTA DE DEBUG
             }
 
 
@@ -294,6 +301,15 @@
                 body = `Venda aprovada: ${customText} - ${formattedCommission}`;
             }
 
+            const notificationOptions = {
+                body: body,
+                icon: platform.logo, // Ícone da plataforma na notificação do sistema
+                data: {
+                    url: window.location.origin // O que acontece ao clicar na notificação
+                }
+            };
+            console.log("DEBUG: Payload da notificação:", notificationOptions); // DEBUG
+
             try {
                 // Notificação para o usuário atual que está navegando no site
                 await OneSignal.Notifications.triggerLocalNotification({
@@ -304,20 +320,22 @@
                         url: window.location.origin // O que acontece ao clicar na notificação
                     }
                 });
-                console.log('Notificação local do OneSignal disparada com sucesso!');
-                alert('Notificação disparada! Verifique a barra de notificações do seu celular.'); // ALERTA DE DEBUG
+                console.log('DEBUG: Notificação local do OneSignal disparada com sucesso!'); // DEBUG
+                alert('DEBUG: Notificação disparada! Verifique a barra de notificações do seu celular.'); // ALERTA DE DEBUG
 
             } catch (error) {
-                console.error('Erro ao enviar notificação OneSignal:', error);
-                alert(`Erro ao disparar notificação: ${error.message}. Verifique o console.`); // ALERTA DE DEBUG
+                console.error('DEBUG: Erro ao enviar notificação OneSignal:', error); // DEBUG
+                alert(`DEBUG: Erro ao disparar notificação: ${error.message}. Verifique o console.`); // ALERTA DE DEBUG
             }
         }
 
         // Função para iniciar a sequência de notificações
         async function startNotificationSequence() {
+            console.log("DEBUG: startNotificationSequence chamada."); // DEBUG
+
             // Verifica se o OneSignal está pronto antes de tentar gerar notificações
             if (typeof OneSignal === 'undefined' || !OneSignal.Notifications) {
-                alert('OneSignal ainda não foi inicializado. Por favor, aguarde alguns segundos e tente novamente. Certifique-se de que OneSignalSDK.page.js e OneSignalSDKWorker.js estão na raiz do seu site.');
+                alert('DEBUG: OneSignal não inicializado no início da sequência. Por favor, aguarde alguns segundos e tente novamente. Certifique-se de que OneSignalSDK.page.js e OneSignalSDKWorker.js estão na raiz do seu site.');
                 return;
             }
 
@@ -351,19 +369,24 @@
             
             // Verifica se o usuário permitiu as notificações push antes de iniciar a sequência
             if (!(await OneSignal.Notifications.isPushEnabled())) {
-                alert('Por favor, ative as notificações do sistema (permita o pop-up de notificação do navegador) antes de gerar a sequência.');
-                // O OneSignal geralmente exibe o prompt de permissão automaticamente,
-                // mas você pode forçar aqui se quiser: OneSignal.Notifications.requestPermission();
-                stopNotificationSequence();
-                return;
+                alert('DEBUG: Permissão não concedida antes de iniciar sequência. Tentando pedir...'); // ALERTA DE DEBUG
+                await OneSignal.Notifications.requestPermission();
+                if (!(await OneSignal.Notifications.isPushEnabled())) {
+                    alert('DEBUG: Permissão ainda não concedida após solicitação pré-sequência. Geração cancelada.'); // ALERTA DE DEBUG
+                    stopNotificationSequence();
+                    return;
+                }
             }
 
 
             currentNotificationCount = 0;
+            alert('DEBUG: Iniciar sequência de notificações. Total: ' + quantity + ' Intervalo: ' + (interval/1000) + 's'); // ALERTA DE DEBUG
+
 
             // Inicia o intervalo para disparar as notificações
             notificationSequenceInterval = setInterval(() => {
                 if (currentNotificationCount < quantity) {
+                    console.log(`DEBUG: Disparando notificação ${currentNotificationCount + 1}/${quantity}`); // DEBUG
                     sendPushNotificationToOneSignal(platform, commissionValue, customText);
                     currentNotificationCount++;
                 } else {
@@ -376,6 +399,8 @@
         function stopNotificationSequence() {
             if (notificationSequenceInterval) {
                 clearInterval(notificationSequenceInterval);
+                notificationSequenceInterval = null; // Garante que a variável seja resetada
+                console.log("DEBUG: Sequência de notificações parada."); // DEBUG
             }
             // Mostra o botão Gerar e esconde o botão Parar
             generateBtn.style.display = 'block';
