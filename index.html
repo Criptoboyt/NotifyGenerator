@@ -8,10 +8,51 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     
-    <!-- NOVOS: Links para o Manifest e Service Worker (essenciais para PWA) -->
+    <!-- Links para o Manifest do PWA -->
     <link rel="manifest" href="manifest.json">
-    <!-- Adicionando uma meta tag para a cor da barra de status em navegadores -->
     <meta name="theme-color" content="#22303f"> 
+    
+    <!-- **CÓDIGO DE INTEGRAÇÃO DO ONESIGNAL** -->
+    <!-- Este script carrega o SDK principal do OneSignal -->
+    <script src="https://cdn.onesignal.com/sdks/web/v10/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        // SÓCIO: COLOQUE SEU ONESIGNAL APP ID AQUI!
+        // Você encontra ele no painel do OneSignal, em "Settings" > "Keys & IDs"
+        await OneSignal.init({
+          appId: "35838c3a-dc5d-4920-8b1b-117eedd90dba", // SUBSTITUA AQUI COM O SEU APP ID REAL DO ONESIGNAL!
+          // Isso configura o Service Worker do OneSignal (OneSignalSDKWorker.js)
+          // Ele deve estar na raiz do seu site (mesma pasta do index.html)
+          serviceWorkerPath: "OneSignalSDKWorker.js", 
+        });
+
+        // Opcional: Para pedir permissão automaticamente ou em um momento específico
+        // OneSignal.Notifications.requestPermission(); 
+        
+        // Exemplo: Disparar um evento de teste de permissão após 5 segundos
+        // setTimeout(() => {
+        //   if (OneSignal.Notifications.permission !== 'granted') {
+        //     OneSignal.Notifications.requestPermission();
+        //   }
+        // }, 5000); // Pede permissão após 5 segundos se ainda não foi concedida
+
+        // Adicionar listener para quando o usuário se inscreve
+        OneSignal.Notifications.addEventListener('subscriptionchange', function(isSubscribed) {
+          console.log("Status de inscrição do OneSignal:", isSubscribed);
+          if (isSubscribed) {
+            console.log("Usuário inscrito para notificações push!");
+          } else {
+            console.log("Usuário não inscrito para notificações push.");
+          }
+        });
+
+        // Opcional: Obter o ID do usuário OneSignal para envios direcionados (avançado)
+        // const userId = await OneSignal.User.PushSubscription.getEphemeralId();
+        // console.log("OneSignal User ID:", userId);
+      });
+    </script>
+    <!-- **FIM DO CÓDIGO DO ONESIGNAL** -->
     
     <style>
         /* Estilos personalizados para o corpo e a fonte */
@@ -110,96 +151,15 @@
         .btn-stop:hover {
             background-color: #dc2626;
         }
-        /* Estilo para botão de ativação de notificações do sistema */
+        /* O botão de ativação de notificações do sistema não é mais necessário aqui,
+           pois o OneSignal já gerencia a permissão automaticamente (se configurado) */
         .btn-system-notifications {
-            background-color: #10b981; /* Verde */
-            margin-bottom: 24px; /* Espaço extra antes do formulário */
-        }
-        .btn-system-notifications:hover {
-            background-color: #059669;
+            display: none; /* Oculta o botão antigo de ativar notificações do sistema */
         }
 
-        /* A notificação simulada dentro do app não será mais a principal */
-        /* Mantida para fins de fallback ou visualização interna, mas não será usada para o push do sistema */
+        /* A notificação simulada dentro do app não é mais usada */
         .simulated-notification {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-100px);
-            background-color: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            padding: 16px 20px;
-            border-radius: 16px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            display: flex;
-            align-items: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease-out, transform 0.3s ease-out, visibility 0.3s;
-            z-index: 1000;
-            max-width: 90%;
-            box-sizing: border-box;
-        }
-        .simulated-notification.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0);
-        }
-        .simulated-notification.hide {
-            opacity: 0;
-            visibility: hidden;
-            transform: translateX(-50%) translateY(-100px);
-        }
-        .notification-icon {
-            width: 80px;
-            height: 80px;
-            border-radius: 20px;
-            margin-right: 24px;
-            object-fit: contain;
-        }
-        .notification-text {
-            font-size: 0.95rem;
-            color: #1f2937;
-            line-height: 1.4;
-            font-weight: 500;
-        }
-
-        /* Ajustes para telas menores */
-        @media (max-width: 640px) {
-            .app-container {
-                padding: 24px;
-                border-radius: 16px;
-            }
-            .form-input {
-                padding: 10px 14px;
-                font-size: 0.95rem;
-            }
-            .btn {
-                padding: 12px 20px;
-                font-size: 0.95rem;
-            }
-            .simulated-notification {
-                padding: 14px;
-                top: 15px;
-                border-radius: 14px;
-            }
-            .notification-icon {
-                width: 64px;
-                height: 64px;
-                margin-right: 20px;
-            }
-            .notification-text {
-                font-size: 0.9rem;
-            }
-            label {
-                font-size: 1rem;
-                margin-bottom: 6px;
-            }
-            .subtitle {
-                font-size: 0.8rem;
-                margin-bottom: 20px;
-            }
+            display: none; 
         }
     </style>
 </head>
@@ -210,10 +170,9 @@
         </h1>
         <p class="subtitle">Created by: @CriptoBoyt</p>
 
-        <button id="activateSystemNotificationsBtn" class="btn btn-system-notifications">
-            Ativar Notificações do Sistema
-        </button>
-
+        <!-- O botão de ativação de notificações do sistema (verde) foi removido,
+             pois o OneSignal gerencia isso de forma mais integrada -->
+        
         <div class="mb-6">
             <label for="platformSelect">
                 Selecione a Plataforma:
@@ -255,25 +214,18 @@
         </div>
 
         <button id="generateBtn" class="btn">
-            Gerar Notificação(ões) no Sistema
+            Gerar Notificação(ões) via OneSignal
         </button>
         <button id="stopBtn" class="btn btn-stop" style="display: none;">
             Parar Geração
         </button>
 
-        <!-- A notificação simulada dentro do app não será mais usada para push do sistema -->
-        <div id="notificationDisplay" class="simulated-notification" style="display: none;">
-            <img id="notificationIcon" src="" alt="Ícone da Plataforma" class="notification-icon">
-            <div>
-                <p id="notificationPlatformName" class="text-gray-900 font-semibold text-sm mb-1"></p>
-                <p id="notificationMessage" class="notification-text"></p>
-            </div>
-        </div>
+        <!-- A div de notificação simulada interna não é mais necessária para as notificações de sistema -->
+        <div id="notificationDisplay" style="display: none;"></div>
     </div>
 
     <script>
         // Mapeamento das plataformas com suas logos.
-        // SÓCIO, É MUITO IMPORTANTE: SUBSTITUA OS URLs ABAIXO PELOS LINKS DIRETOS DAS SUAS LOGOS!
         const platformData = {
             'kiwify': {
                 name: 'Kiwify',
@@ -301,121 +253,23 @@
         const intervalInput = document.getElementById('intervalInput');
         const generateBtn = document.getElementById('generateBtn');
         const stopBtn = document.getElementById('stopBtn');
-        const activateSystemNotificationsBtn = document.getElementById('activateSystemNotificationsBtn'); // Novo botão
+        // O botão 'activateSystemNotificationsBtn' e sua lógica foram removidos
+        // pois o OneSignal lida com a permissão de notificação automaticamente.
 
         let notificationSequenceInterval;
         let currentNotificationCount = 0;
-        let pushSubscription = null; // Armazenará a inscrição do push notification
 
-        // Endpoint de Backend para ENVIAR a notificação.
-        // SÓCIO: VOCÊ PRECISA IMPLEMENTAR ESTE BACKEND!
-        // Este URL deve apontar para o seu servidor que vai receber a solicitação
-        // e enviar a notificação push via FCM/APNs.
-        const BACKEND_PUSH_ENDPOINT = 'https://SEU_ENDPOINT_DE_BACKEND_AQUI/send-push'; 
-        // Exemplo: se usar Netlify Functions, pode ser 'https://seu-site.netlify.app/.netlify/functions/send-push'
+        // --- Lógica de Geração e Envio de Notificações via OneSignal ---
 
-        // --- Lógica de Push Notifications do Sistema ---
-
-        // Função para pedir permissão e registrar Service Worker para Push
-        async function requestNotificationPermissionAndSubscribe() {
-            if (!('serviceWorker' in navigator)) {
-                console.warn('Service Worker não é suportado neste navegador.');
-                alert('Seu navegador não suporta Service Workers, o que é necessário para notificações do sistema.');
+        // Função para enviar uma notificação push via OneSignal
+        async function sendPushNotificationToOneSignal(platform, commission, customText) {
+            // Verifica se o OneSignal está pronto e se o usuário está inscrito
+            if (typeof OneSignal === 'undefined' || !OneSignal.Notifications || !(await OneSignal.Notifications.isPushEnabled())) {
+                alert('As notificações do sistema não estão ativas. Por favor, permita as notificações no pop-up do navegador para receber.');
+                console.warn('OneSignal não está pronto ou usuário não inscrito. Notificação do sistema não enviada.');
+                // Tenta pedir permissão se não estiver ativo
+                await OneSignal.Notifications.requestPermission();
                 return;
-            }
-            if (!('PushManager' in window)) {
-                console.warn('Push API não é suportada neste navegador.');
-                alert('Seu navegador não suporta a Push API para notificações do sistema.');
-                return;
-            }
-
-            try {
-                // 1. Pedir permissão ao usuário
-                const permission = await Notification.requestPermission();
-                if (permission !== 'granted') {
-                    console.error('Permissão para notificações não concedida.');
-                    alert('Permissão para notificações não concedida. Não será possível enviar notificações do sistema.');
-                    return;
-                }
-                console.log('Permissão para notificações concedida!');
-
-                // 2. Obter o registro do Service Worker
-                const registration = await navigator.serviceWorker.getRegistration();
-                if (!registration) {
-                    console.error('Nenhum Service Worker registrado.');
-                    alert('Nenhum Service Worker registrado. Por favor, recarregue a página.');
-                    return;
-                }
-
-                // 3. Obter ou criar uma inscrição (subscription) para push notifications
-                pushSubscription = await registration.pushManager.getSubscription();
-                if (pushSubscription === null) {
-                    // Se não há inscrição, crie uma nova
-                    // O VAPID public key é crucial para autenticar seu backend com o serviço de push.
-                    // SÓCIO: SUBSTITUA PELA SUA CHAVE PÚBLICA VAPID AQUI!
-                    // Esta chave é gerada pelo seu backend que usa o FCM/Web-Push.
-                    // A CHAVE DEVE ESTAR ENTRE ASPAS SIMPLES!
-                    const VAPID_PUBLIC_KEY = 'BOJ7ytg758AWbOBiIqxeUYpOJFQ024uUkV8r4wuV0Vr_o-majtDVxwxxRmf3DzU7OCnKfR4NLaOzU3q_PL_kqqI'; 
-                    
-                    if (VAPID_PUBLIC_KEY === 'SEU_VAPID_PUBLIC_KEY_AQUI' || !VAPID_PUBLIC_KEY) {
-                        alert('Por favor, configure sua chave VAPID pública no código JavaScript para ativar notificações push. Ela deve estar entre aspas simples.');
-                        console.error('Chave VAPID pública ausente ou incorreta. Não é possível se inscrever para notificações push.');
-                        return;
-                    }
-
-                    pushSubscription = await registration.pushManager.subscribe({
-                        userVisibleOnly: true, // Sempre visível para o usuário
-                        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-                    });
-                    console.log('Inscrição Push criada:', pushSubscription);
-                    alert('Notificações do sistema ativadas com sucesso! Agora você pode gerar notificações no sistema.');
-                } else {
-                    console.log('Inscrição Push existente:', pushSubscription);
-                    alert('Notificações do sistema já estão ativas!');
-                }
-                
-                // Opcional: Enviar a inscrição para o seu backend para que ele saiba para onde enviar
-                // console.log('Enviando inscrição para o backend...');
-                // await fetch(`${BACKEND_PUSH_ENDPOINT}/subscribe`, {
-                //     method: 'POST',
-                //     headers: { 'Content-Type': 'application/json' },
-                //     body: JSON.stringify(pushSubscription)
-                // });
-
-            } catch (error) {
-                console.error('Erro ao ativar notificações do sistema:', error);
-                alert(`Erro ao ativar notificações do sistema: ${error.message}. Verifique o console.`);
-            }
-        }
-
-        // Função utilitária para converter Base64 URL para Uint8Array
-        function urlBase64ToUint8Array(base64String) {
-            const padding = '='.repeat((4 - base64String.length % 4) % 4);
-            const base64 = (base64String + padding)
-                .replace(/\-/g, '+')
-                .replace(/_/g, '/');
-            const rawData = window.atob(base64);
-            const outputArray = new Uint8Array(rawData.length);
-            for (let i = 0; i < rawData.length; ++i) {
-                outputArray[i] = rawData.charCodeAt(i);
-            }
-            return outputArray;
-        }
-
-        // --- Lógica de Geração e Envio de Notificações ---
-
-        // Função para enviar uma notificação push via backend
-        async function sendPushNotificationToSystem(platform, commission, customText) {
-            if (!pushSubscription) {
-                alert('Por favor, ative as notificações do sistema primeiro (clique no botão verde).');
-                console.warn('Não há inscrição push ativa. Notificação do sistema não enviada.');
-                return;
-            }
-
-            // Validação básica do valor da comissão
-            if (isNaN(commission) || commission === null) {
-                commission = 0; // Define como 0 se for inválido
-                console.warn('Valor de comissão inválido. Usando 0.');
             }
 
             // Formatação do valor da comissão para BRL
@@ -426,51 +280,47 @@
                 maximumFractionDigits: 2
             }).format(commission);
 
-            // Monta a mensagem e dados para enviar ao backend
+            // Monta a mensagem e dados para enviar ao OneSignal
             let title = platform.name;
             let body = `Venda aprovada: Sua comissão ${formattedCommission}`;
             if (customText) {
                 body = `Venda aprovada: ${customText} - ${formattedCommission}`;
             }
 
-            const notificationPayload = {
-                title: title,
-                body: body,
-                icon: platform.logo, // Ícone da plataforma na notificação do sistema
-                data: {
-                    url: window.location.origin // O que acontece ao clicar na notificação
-                }
-            };
-
+            // O OneSignal enviará a notificação para VOCÊ, o usuário que está acessando o site.
+            // Para enviar para outros usuários ou segmentos, você precisaria de mais lógica (API REST do OneSignal).
             try {
-                // Envia a solicitação para o seu backend
-                const response = await fetch(BACKEND_PUSH_ENDPOINT, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        subscription: pushSubscription, // Envia a inscrição para o backend
-                        payload: notificationPayload
-                    })
+                // Notificação para o usuário atual que está navegando no site
+                await OneSignal.Notifications.triggerLocalNotification({
+                    title: title,
+                    body: body,
+                    icon: platform.logo, // Ícone da plataforma na notificação do sistema
+                    data: {
+                        url: window.location.origin // O que acontece ao clicar na notificação
+                    }
                 });
+                console.log('Notificação local do OneSignal disparada com sucesso!');
 
-                if (response.ok) {
-                    console.log('Solicitação de notificação push enviada ao backend com sucesso!');
-                    // A notificação real aparecerá na barra de notificações do sistema, não aqui.
-                } else {
-                    const errorData = await response.json();
-                    console.error('Falha ao enviar notificação push ao backend:', response.status, errorData);
-                    alert(`Falha ao enviar notificação push: ${errorData.message || response.statusText}`);
-                }
+                // NOTA: Para enviar notificações para usuários offline ou segmentados,
+                // você precisaria da REST API do OneSignal, que exige uma chave de API REST.
+                // Isso normalmente é feito de um BACKEND SEPARADO.
+                // Para o seu caso de "provas sociais" e para você mesmo receber, a notificação local
+                // (disparada pelo OneSignal SDK no navegador) funciona como uma push notification real.
+
             } catch (error) {
-                console.error('Erro de rede ao enviar notificação push:', error);
-                alert(`Erro de rede ao enviar notificação: ${error.message}. Verifique a conexão e o endpoint do backend.`);
+                console.error('Erro ao enviar notificação OneSignal:', error);
+                alert(`Erro ao enviar notificação: ${error.message}. Verifique o console.`);
             }
         }
 
-        // Função para iniciar a sequência de notificações push
-        function startNotificationSequence() {
+        // Função para iniciar a sequência de notificações
+        async function startNotificationSequence() {
+            // Verifica se o OneSignal está pronto antes de tentar gerar notificações
+            if (typeof OneSignal === 'undefined' || !OneSignal.Notifications) {
+                alert('OneSignal ainda não foi inicializado. Por favor, aguarde alguns segundos e tente novamente. Certifique-se de que o OneSignalSDK.page.js e o OneSignalSDKWorker.js estão na raiz do seu site.');
+                return;
+            }
+
             // Esconde o botão Gerar e mostra o botão Parar
             generateBtn.style.display = 'none';
             stopBtn.style.display = 'block';
@@ -498,19 +348,23 @@
                 alert('Por favor, insira um intervalo válido (mínimo 0.5 segundos).');
                 return;
             }
-
-            if (!pushSubscription) {
-                alert('Por favor, ative as notificações do sistema primeiro (clique no botão verde) antes de gerar a sequência.');
-                stopNotificationSequence(); // Garante que botões voltem ao normal
+            
+            // Verifica se o usuário permitiu as notificações push antes de iniciar a sequência
+            if (!(await OneSignal.Notifications.isPushEnabled())) {
+                alert('Por favor, ative as notificações do sistema (permita o pop-up de notificação do navegador) antes de gerar a sequência.');
+                // O OneSignal geralmente exibe o prompt de permissão automaticamente,
+                // mas você pode forçar aqui se quiser: OneSignal.Notifications.requestPermission();
+                stopNotificationSequence();
                 return;
             }
 
+
             currentNotificationCount = 0;
 
-            // Inicia o intervalo para disparar as notificações push
+            // Inicia o intervalo para disparar as notificações
             notificationSequenceInterval = setInterval(() => {
                 if (currentNotificationCount < quantity) {
-                    sendPushNotificationToSystem(platform, commissionValue, customText);
+                    sendPushNotificationToOneSignal(platform, commissionValue, customText);
                     currentNotificationCount++;
                 } else {
                     stopNotificationSequence();
@@ -530,7 +384,6 @@
         }
 
         // Event Listeners
-        activateSystemNotificationsBtn.addEventListener('click', requestNotificationPermissionAndSubscribe);
         generateBtn.addEventListener('click', startNotificationSequence);
         stopBtn.addEventListener('click', stopNotificationSequence);
 
@@ -544,22 +397,6 @@
                 }
             });
         });
-
-        // Opcional: Verifique o status da permissão e da inscrição ao carregar a página
-        async function checkSubscriptionStatus() {
-            if ('serviceWorker' in navigator && 'PushManager' in window) {
-                const registration = await navigator.serviceWorker.getRegistration();
-                if (registration) {
-                    pushSubscription = await registration.pushManager.getSubscription();
-                    if (pushSubscription) {
-                        console.log('Inscrição Push ativa ao carregar a página.');
-                    } else {
-                        console.log('Nenhuma inscrição Push ativa ao carregar a página.');
-                    }
-                }
-            }
-        }
-        checkSubscriptionStatus();
     </script>
 </body>
 </html>
