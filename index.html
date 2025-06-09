@@ -12,54 +12,13 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#22303f"> 
     
-    <!-- **SCRIPT TEMPORÁRIO E MUITO AGRESSIVO PARA DESREGISTRAR TODOS OS SERVICE WORKERS** -->
-    <!-- ESTE SCRIPT DEVE SER REMOVIDO APÓS O TESTE DE LIMPEZA -->
-    <script>
-        console.log("DEBUG: Tentando desregistrar Service Workers existentes...");
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                console.log('DEBUG: Registros de SW encontrados:', registrations.length);
-                if (registrations.length > 0) {
-                    let unregisteredCount = 0;
-                    registrations.forEach(function(registration) {
-                        registration.unregister().then(function(success) {
-                            if (success) {
-                                console.log('DEBUG: Service Worker desregistrado:', registration.scope);
-                                unregisteredCount++;
-                            } else {
-                                console.warn('DEBUG: Falha ao desregistrar Service Worker:', registration.scope);
-                            }
-                        }).catch(function(error) {
-                            console.error('DEBUG: Erro na desregistro do Service Worker:', error);
-                        });
-                    });
-                    setTimeout(() => { // Dê um tempo para as desregistrações ocorrerem
-                        alert('DEBUG: Tentativa de desregistro de Service Workers concluída. SWs desregistrados: ' + unregisteredCount + '. A página será recarregada.');
-                        window.location.reload(true); // Força um recarregamento sem cache
-                    }, 1500); // 1.5 segundos
-                } else {
-                    alert('DEBUG: Nenhum Service Worker ativo encontrado para desregistrar. A página será recarregada limpa.');
-                    setTimeout(() => { window.location.reload(true); }, 500); // Recarrega mais rápido
-                }
-            }).catch(function(error) {
-                console.error('DEBUG: Erro ao obter registros de Service Worker:', error);
-                alert('DEBUG: Erro ao obter registros de SW: ' + error.message + '. A página será recarregada.');
-                setTimeout(() => { window.location.reload(true); }, 500);
-            });
-        } else {
-            alert('DEBUG: Service Workers não suportados ou não encontrados no navegador. A página será recarregada.');
-            setTimeout(() => { window.location.reload(true); }, 500);
-        }
-    </script>
-    <!-- **FIM DO SCRIPT TEMPORÁRIO** -->
-
     <!-- **CÓDIGO DE INTEGRAÇÃO DO ONESIGNAL** -->
     <!-- Este script carrega o SDK principal do OneSignal AGORA LOCALMENTE -->
     <script src="OneSignalSDK.page.js" defer></script> 
     <script>
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
-        console.log("DEBUG: OneSignalDeferred.push executado."); // DEBUG
+        console.log("DEBUG: OneSignalDeferred.push executado.");
 
         // SÓCIO: COLOQUE SEU ONESIGNAL APP ID AQUI!
         await OneSignal.init({
@@ -67,39 +26,18 @@
           serviceWorkerPath: "OneSignalSDKWorker.js", 
         });
 
-        console.log("DEBUG: OneSignal SDK inicializado."); // DEBUG
-        alert("DEBUG: OneSignal SDK Inicializado! O objeto OneSignal existe: " + (typeof OneSignal !== 'undefined')); // ALERTA CRÍTICO
-
+        console.log("DEBUG: OneSignal SDK inicializado.");
+        alert("Olá, sócio! Clique em 'Ativar Notificações do Sistema' para começar a receber as notificações na barra do seu celular."); // ALERTA INICIAL
+        
         // Adicionar listener para quando o usuário se inscreve
         OneSignal.Notifications.addEventListener('subscriptionchange', function(isSubscribed) {
-          console.log("DEBUG: Status de inscrição do OneSignal (subscriptionchange):", isSubscribed); // DEBUG
+          console.log("DEBUG: Status de inscrição do OneSignal (subscriptionchange):", isSubscribed);
           if (isSubscribed) {
-            alert("DEBUG: Sucesso! Usuário inscrito para notificações push no OneSignal."); // ALERTA DE DEBUG
+            alert("Sucesso! Usuário inscrito para notificações push no OneSignal.");
           } else {
-            alert("DEBUG: Alerta: Usuário não inscrito para notificações push no OneSignal. Verifique permissões."); // ALERTA DE DEBUG
+            alert("Usuário não inscrito para notificações push no OneSignal.");
           }
         });
-
-        // Tentar pedir permissão logo após a inicialização, se não for concedida
-        const initialPermission = Notification.permission;
-        console.log("DEBUG: Permissão do navegador antes da solicitação:", initialPermission); // DEBUG
-        alert("DEBUG: Permissão inicial do navegador: " + initialPermission); // ALERTA
-
-        if (initialPermission === 'default') {
-            await OneSignal.Notifications.requestPermission();
-            const afterRequestPermission = Notification.permission;
-            console.log("DEBUG: Permissão do navegador após solicitação:", afterRequestPermission); // DEBUG
-            alert("DEBUG: Permissão do navegador após solicitação: " + afterRequestPermission); // ALERTA
-        }
-        
-        const finalPermissionStatus = Notification.permission;
-        if (finalPermissionStatus === 'granted') {
-            console.log("DEBUG: Permissão final concedida."); // DEBUG
-            alert("DEBUG: Permissão final concedida! Pode tentar gerar notificações."); // ALERTA
-        } else {
-            console.log("DEBUG: Permissão final negada ou padrão."); // DEBUG
-            alert("DEBUG: Permissão final não concedida. Não será possível gerar notificações. Status: " + finalPermissionStatus); // ALERTA
-        }
       });
     </script>
     <!-- **FIM DO CÓDIGO DO ONESIGNAL** -->
@@ -201,10 +139,13 @@
         .btn-stop:hover {
             background-color: #dc2626;
         }
-        /* O botão de ativação de notificações do sistema não é mais necessário aqui,
-           pois o OneSignal já gerencia a permissão automaticamente (se configurado) */
+        /* Botão para ativar notificações do sistema (AGORA VISÍVEL) */
         .btn-system-notifications {
-            display: none; /* Oculta o botão antigo de ativar notificações do sistema */
+            background-color: #10b981; /* Verde */
+            margin-bottom: 24px; /* Espaço extra antes do formulário */
+        }
+        .btn-system-notifications:hover {
+            background-color: #059669;
         }
 
         /* A notificação simulada dentro do app não é mais usada */
@@ -220,8 +161,10 @@
         </h1>
         <p class="subtitle">Created by: @CriptoBoyt</p>
 
-        <!-- O botão de ativação de notificações do sistema (verde) foi removido,
-             pois o OneSignal gerencia isso de forma mais integrada -->
+        <!-- NOVO BOTÃO: Para ATIVAR AS NOTIFICAÇÕES DO SISTEMA -->
+        <button id="activateSystemNotificationsBtn" class="btn btn-system-notifications">
+            Ativar Notificações do Sistema
+        </button>
         
         <div class="mb-6">
             <label for="platformSelect">
@@ -275,11 +218,6 @@
     </div>
 
     <script>
-        // Este alerta deve aparecer assim que a página carrega.
-        // Já removido o alerta, pois sabemos que a página carrega.
-        // alert("DEBUG: App Carregado!"); 
-        console.log("DEBUG: App Carregado!"); // DEBUG
-        
         // Mapeamento das plataformas com suas logos.
         const platformData = {
             'kiwify': {
@@ -308,41 +246,45 @@
         const intervalInput = document.getElementById('intervalInput');
         const generateBtn = document.getElementById('generateBtn');
         const stopBtn = document.getElementById('stopBtn');
+        const activateSystemNotificationsBtn = document.getElementById('activateSystemNotificationsBtn'); // Novo botão
 
         let notificationSequenceInterval;
         let currentNotificationCount = 0;
 
         // --- Lógica de Geração e Envio de Notificações via OneSignal ---
 
-        // Função para enviar uma notificação push via OneSignal
-        async function sendPushNotificationToOneSignal(platform, commission, customText) {
-            console.log("DEBUG: sendPushNotificationToOneSignal chamada."); // DEBUG
-            // Verifica se o OneSignal está pronto e se o usuário está inscrito
+        // Função para solicitar permissão de notificação e inscrever no OneSignal
+        async function requestAndSubscribeOneSignal() {
+            alert('DEBUG: Botão "Ativar Notificações" clicado.'); // ALERTA DE DEBUG
             if (typeof OneSignal === 'undefined' || !OneSignal.Notifications) {
-                alert('DEBUG: OneSignal NÃO inicializado na chamada de envio. Notificação não pode ser enviada.'); // ALERTA DE DEBUG
-                console.warn('OneSignal não inicializado. Notificação do sistema não enviada.');
+                alert('DEBUG: OneSignal NÃO inicializado. Por favor, recarregue a página e tente novamente.');
                 return;
             }
 
-            const isPushEnabled = await OneSignal.Notifications.isPushEnabled();
-            console.log("DEBUG: isPushEnabled:", isPushEnabled); // DEBUG
+            const permission = await OneSignal.Notifications.requestPermission();
+            alert('DEBUG: Permissão após solicitação: ' + permission); // ALERTA DE DEBUG
 
-            if (!isPushEnabled) {
-                alert('DEBUG: Permissão para notificações NÃO concedida. Tentando solicitar permissão...'); // ALERTA DE DEBUG
-                await OneSignal.Notifications.requestPermission();
-                const isPushEnabledAfterRequest = await OneSignal.Notifications.isPushEnabled();
-                if (!isPushEnabledAfterRequest) {
-                    alert('DEBUG: Permissão ainda NÃO concedida após a solicitação. Notificação não enviada. Verifique as configurações do navegador/OS.'); // ALERTA DE DEBUG
-                    return;
+            if (permission === 'granted') {
+                const isPushEnabled = await OneSignal.Notifications.isPushEnabled();
+                if (isPushEnabled) {
+                    alert('DEBUG: Permissão concedida e usuário inscrito no OneSignal!'); // ALERTA DE DEBUG
                 } else {
-                    alert('DEBUG: Permissão CONCEDIDA após solicitação. Tentando disparar notificação.'); // ALERTA DE DEBUG
+                    alert('DEBUG: Permissão concedida, mas não inscrito. OneSignal tentando se inscrever automaticamente.'); // ALERTA DE DEBUG
                 }
             } else {
-                alert('DEBUG: OneSignal pronto e permissão CONCEDIDA. Tentando disparar notificação.'); // ALERTA DE DEBUG
+                alert('DEBUG: Permissão negada ou padrão. Não será possível enviar notificações.'); // ALERTA DE DEBUG
+            }
+        }
+
+        // Função para enviar uma notificação push via OneSignal
+        async function sendPushNotificationToOneSignal(platform, commission, customText) {
+            console.log("DEBUG: sendPushNotificationToOneSignal chamada.");
+            if (typeof OneSignal === 'undefined' || !OneSignal.Notifications || !(await OneSignal.Notifications.isPushEnabled())) {
+                alert('DEBUG: OneSignal não está pronto OU permissão não concedida. Por favor, clique no botão "Ativar Notificações do Sistema" primeiro.');
+                console.warn('OneSignal não está pronto ou usuário não inscrito. Notificação do sistema não enviada.');
+                return;
             }
 
-
-            // Formatação do valor da comissão para BRL
             const formattedCommission = new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
                 currency: 'BRL',
@@ -350,57 +292,42 @@
                 maximumFractionDigits: 2
             }).format(commission);
 
-            // Monta a mensagem e dados para enviar ao OneSignal
             let title = platform.name;
             let body = `Venda aprovada: Sua comissão ${formattedCommission}`;
             if (customText) {
                 body = `Venda aprovada: ${customText} - ${formattedCommission}`;
             }
 
-            const notificationOptions = {
-                body: body,
-                icon: platform.logo, // Ícone da plataforma na notificação do sistema
-                data: {
-                    url: window.location.origin // O que acontece ao clicar na notificação
-                }
-            };
-            console.log("DEBUG: Payload da notificação:", notificationOptions); // DEBUG
-
             try {
-                // Notificação para o usuário atual que está navegando no site
                 await OneSignal.Notifications.triggerLocalNotification({
                     title: title,
                     body: body,
-                    icon: platform.logo, // Ícone da plataforma na notificação do sistema
+                    icon: platform.logo,
                     data: {
-                        url: window.location.origin // O que acontece ao clicar na notificação
+                        url: window.location.origin
                     }
                 });
-                console.log('DEBUG: Notificação local do OneSignal disparada com sucesso!'); // DEBUG
-                alert('DEBUG: Notificação DISPARADA! Verifique a barra de notificações do seu celular.'); // ALERTA DE DEBUG
+                console.log('DEBUG: Notificação local do OneSignal disparada com sucesso!');
+                alert('DEBUG: Notificação DISPARADA! Verifique a barra de notificações do seu celular.');
 
             } catch (error) {
-                console.error('DEBUG: Erro ao disparar notificação OneSignal:', error); // DEBUG
-                alert(`DEBUG: Erro ao disparar notificação: ${error.message}. Verifique o console.`); // ALERTA DE DEBUG
+                console.error('DEBUG: Erro ao disparar notificação OneSignal:', error);
+                alert(`DEBUG: Erro ao disparar notificação: ${error.message}. Verifique o console.`);
             }
         }
 
         // Função para iniciar a sequência de notificações
         async function startNotificationSequence() {
-            console.log("DEBUG: startNotificationSequence chamada."); // DEBUG
+            console.log("DEBUG: startNotificationSequence chamada.");
 
-            // Verifica se o OneSignal está pronto antes de tentar gerar notificações
-            if (typeof OneSignal === 'undefined' || !OneSignal.Notifications) {
-                alert('DEBUG: OneSignal NÃO inicializado no início da sequência. Por favor, aguarde alguns segundos e tente novamente. Certifique-se de que OneSignalSDK.page.js e OneSignalSDKWorker.js estão na raiz do seu site.'); // ALERTA DE DEBUG
+            if (typeof OneSignal === 'undefined' || !OneSignal.Notifications || !(await OneSignal.Notifications.isPushEnabled())) {
+                alert('DEBUG: Notificações do sistema não ativas para iniciar sequência. Clique em "Ativar Notificações do Sistema".');
                 return;
             }
 
-            // Esconde o botão Gerar e mostra o botão Parar
             generateBtn.style.display = 'none';
             stopBtn.style.display = 'block';
-
-            // Para qualquer sequência existente antes de iniciar uma nova
-            stopNotificationSequence();
+            stopNotificationSequence(); // Para qualquer sequência anterior
 
             const selectedPlatformId = platformSelect.value;
             const platform = platformData[selectedPlatformId];
@@ -423,26 +350,12 @@
                 return;
             }
             
-            // Verifica se o usuário permitiu as notificações push antes de iniciar a sequência
-            if (!(await OneSignal.Notifications.isPushEnabled())) {
-                alert('DEBUG: Permissão NÃO concedida antes de iniciar sequência. Tentando pedir...'); // ALERTA DE DEBUG
-                await OneSignal.Notifications.requestPermission();
-                if (!(await OneSignal.Notifications.isPushEnabled())) {
-                    alert('DEBUG: Permissão ainda NÃO concedida após solicitação pré-sequência. Geração cancelada.'); // ALERTA DE DEBUG
-                    stopNotificationSequence();
-                    return;
-                }
-            }
-
-
             currentNotificationCount = 0;
-            alert('DEBUG: Iniciar sequência de notificações. Total: ' + quantity + ' Intervalo: ' + (interval/1000) + 's'); // ALERTA DE DEBUG
+            alert('DEBUG: Iniciar sequência de notificações. Total: ' + quantity + ' Intervalo: ' + (interval/1000) + 's');
 
-
-            // Inicia o intervalo para disparar as notificações
             notificationSequenceInterval = setInterval(() => {
                 if (currentNotificationCount < quantity) {
-                    console.log(`DEBUG: Disparando notificação ${currentNotificationCount + 1}/${quantity}`); // DEBUG
+                    console.log(`DEBUG: Disparando notificação ${currentNotificationCount + 1}/${quantity}`);
                     sendPushNotificationToOneSignal(platform, commissionValue, customText);
                     currentNotificationCount++;
                 } else {
@@ -455,19 +368,19 @@
         function stopNotificationSequence() {
             if (notificationSequenceInterval) {
                 clearInterval(notificationSequenceInterval);
-                notificationSequenceInterval = null; // Garante que a variável seja resetada
-                console.log("DEBUG: Sequência de notificações parada."); // DEBUG
+                notificationSequenceInterval = null;
+                console.log("DEBUG: Sequência de notificações parada.");
             }
-            // Mostra o botão Gerar e esconde o botão Parar
             generateBtn.style.display = 'block';
             stopBtn.style.display = 'none';
             currentNotificationCount = 0;
         }
 
         // Event Listeners
+        activateSystemNotificationsBtn.addEventListener('click', requestAndSubscribeOneSignal);
         generateBtn.addEventListener('click', startNotificationSequence);
         stopBtn.addEventListener('click', stopNotificationSequence);
-
+        
         // Previne o comportamento padrão do Enter em campos de input
         const inputElements = [commissionInput, customTextInput, quantityInput, intervalInput];
         inputElements.forEach(input => {
