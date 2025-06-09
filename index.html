@@ -18,17 +18,21 @@
     <script>
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
+        console.log("DEBUG: OneSignalDeferred.push executado."); // DEBUG
+
         // SÓCIO: COLOQUE SEU ONESIGNAL APP ID AQUI!
+        // Você encontra ele no painel do OneSignal, em "Settings" > "Keys & IDs"
         await OneSignal.init({
-          appId: "35838c3a-dc5d-4920-8b1b-117eed90dba", // SUBSTITUA AQUI COM O SEU APP ID REAL DO ONESIGNAL!
+          appId: "35838c3a-dc5d-4920-8b1b-117eedd90dba", // SUBSTITUA AQUI COM O SEU APP ID REAL DO ONESIGNAL!
           serviceWorkerPath: "OneSignalSDKWorker.js", 
         });
 
-        console.log("OneSignal SDK inicializado."); // DEBUG
+        console.log("DEBUG: OneSignal SDK inicializado."); // DEBUG
+        alert("DEBUG: OneSignal SDK Inicializado! O objeto OneSignal existe: " + (typeof OneSignal !== 'undefined')); // ALERTA CRÍTICO
 
-        // Listener para quando o usuário se inscreve
+        // Adicionar listener para quando o usuário se inscreve
         OneSignal.Notifications.addEventListener('subscriptionchange', function(isSubscribed) {
-          console.log("Status de inscrição do OneSignal:", isSubscribed);
+          console.log("DEBUG: Status de inscrição do OneSignal (subscriptionchange):", isSubscribed); // DEBUG
           if (isSubscribed) {
             alert("DEBUG: Sucesso! Usuário inscrito para notificações push no OneSignal."); // ALERTA DE DEBUG
           } else {
@@ -37,14 +41,25 @@
         });
 
         // Tentar pedir permissão logo após a inicialização, se não for concedida
-        OneSignal.Notifications.requestPermission().then(permission => {
-            console.log("DEBUG: Permissão de notificação inicial:", permission); // DEBUG
-            if (permission === 'granted') {
-                console.log("DEBUG: Permissão concedida na inicialização."); // DEBUG
-            } else {
-                console.log("DEBUG: Permissão negada na inicialização."); // DEBUG
-            }
-        });
+        const initialPermission = Notification.permission;
+        console.log("DEBUG: Permissão do navegador antes da solicitação:", initialPermission); // DEBUG
+        alert("DEBUG: Permissão inicial do navegador: " + initialPermission); // ALERTA
+
+        if (initialPermission === 'default') {
+            await OneSignal.Notifications.requestPermission();
+            const afterRequestPermission = Notification.permission;
+            console.log("DEBUG: Permissão do navegador após solicitação:", afterRequestPermission); // DEBUG
+            alert("DEBUG: Permissão do navegador após solicitação: " + afterRequestPermission); // ALERTA
+        }
+        
+        const finalPermissionStatus = Notification.permission;
+        if (finalPermissionStatus === 'granted') {
+            console.log("DEBUG: Permissão final concedida."); // DEBUG
+            alert("DEBUG: Permissão final concedida! Pode tentar gerar notificações."); // ALERTA
+        } else {
+            console.log("DEBUG: Permissão final negada ou padrão."); // DEBUG
+            alert("DEBUG: Permissão final não concedida. Não será possível gerar notificações. Status: " + finalPermissionStatus); // ALERTA
+        }
       });
     </script>
     <!-- **FIM DO CÓDIGO DO ONESIGNAL** -->
@@ -263,7 +278,7 @@
             console.log("DEBUG: sendPushNotificationToOneSignal chamada."); // DEBUG
             // Verifica se o OneSignal está pronto e se o usuário está inscrito
             if (typeof OneSignal === 'undefined' || !OneSignal.Notifications) {
-                alert('DEBUG: OneSignal não inicializado na chamada de envio. Verifique console.'); // ALERTA DE DEBUG
+                alert('DEBUG: OneSignal NÃO inicializado na chamada de envio. Notificação não pode ser enviada.'); // ALERTA DE DEBUG
                 console.warn('OneSignal não inicializado. Notificação do sistema não enviada.');
                 return;
             }
@@ -272,17 +287,17 @@
             console.log("DEBUG: isPushEnabled:", isPushEnabled); // DEBUG
 
             if (!isPushEnabled) {
-                alert('DEBUG: Permissão para notificações não concedida. Tentando solicitar permissão...'); // ALERTA DE DEBUG
+                alert('DEBUG: Permissão para notificações NÃO concedida. Tentando solicitar permissão...'); // ALERTA DE DEBUG
                 await OneSignal.Notifications.requestPermission();
                 const isPushEnabledAfterRequest = await OneSignal.Notifications.isPushEnabled();
                 if (!isPushEnabledAfterRequest) {
-                    alert('DEBUG: Permissão ainda não concedida após a solicitação. Notificação não enviada. Verifique as configurações do navegador/OS.'); // ALERTA DE DEBUG
+                    alert('DEBUG: Permissão ainda NÃO concedida após a solicitação. Notificação não enviada. Verifique as configurações do navegador/OS.'); // ALERTA DE DEBUG
                     return;
                 } else {
-                    alert('DEBUG: Permissão concedida após solicitação. Tentando disparar notificação.'); // ALERTA DE DEBUG
+                    alert('DEBUG: Permissão CONCEDIDA após solicitação. Tentando disparar notificação.'); // ALERTA DE DEBUG
                 }
             } else {
-                alert('DEBUG: OneSignal pronto e permissão concedida. Tentando disparar notificação.'); // ALERTA DE DEBUG
+                alert('DEBUG: OneSignal pronto e permissão CONCEDIDA. Tentando disparar notificação.'); // ALERTA DE DEBUG
             }
 
 
@@ -321,10 +336,10 @@
                     }
                 });
                 console.log('DEBUG: Notificação local do OneSignal disparada com sucesso!'); // DEBUG
-                alert('DEBUG: Notificação disparada! Verifique a barra de notificações do seu celular.'); // ALERTA DE DEBUG
+                alert('DEBUG: Notificação DISPARADA! Verifique a barra de notificações do seu celular.'); // ALERTA DE DEBUG
 
             } catch (error) {
-                console.error('DEBUG: Erro ao enviar notificação OneSignal:', error); // DEBUG
+                console.error('DEBUG: Erro ao disparar notificação OneSignal:', error); // DEBUG
                 alert(`DEBUG: Erro ao disparar notificação: ${error.message}. Verifique o console.`); // ALERTA DE DEBUG
             }
         }
@@ -335,7 +350,7 @@
 
             // Verifica se o OneSignal está pronto antes de tentar gerar notificações
             if (typeof OneSignal === 'undefined' || !OneSignal.Notifications) {
-                alert('DEBUG: OneSignal não inicializado no início da sequência. Por favor, aguarde alguns segundos e tente novamente. Certifique-se de que OneSignalSDK.page.js e OneSignalSDKWorker.js estão na raiz do seu site.');
+                alert('DEBUG: OneSignal NÃO inicializado no início da sequência. Por favor, aguarde alguns segundos e tente novamente. Certifique-se de que OneSignalSDK.page.js e OneSignalSDKWorker.js estão na raiz do seu site.'); // ALERTA DE DEBUG
                 return;
             }
 
@@ -369,10 +384,10 @@
             
             // Verifica se o usuário permitiu as notificações push antes de iniciar a sequência
             if (!(await OneSignal.Notifications.isPushEnabled())) {
-                alert('DEBUG: Permissão não concedida antes de iniciar sequência. Tentando pedir...'); // ALERTA DE DEBUG
+                alert('DEBUG: Permissão NÃO concedida antes de iniciar sequência. Tentando pedir...'); // ALERTA DE DEBUG
                 await OneSignal.Notifications.requestPermission();
                 if (!(await OneSignal.Notifications.isPushEnabled())) {
-                    alert('DEBUG: Permissão ainda não concedida após solicitação pré-sequência. Geração cancelada.'); // ALERTA DE DEBUG
+                    alert('DEBUG: Permissão ainda NÃO concedida após solicitação pré-sequência. Geração cancelada.'); // ALERTA DE DEBUG
                     stopNotificationSequence();
                     return;
                 }
