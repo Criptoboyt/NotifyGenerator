@@ -12,6 +12,47 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#22303f"> 
     
+    <!-- **SCRIPT TEMPORÁRIO E MUITO AGRESSIVO PARA DESREGISTRAR TODOS OS SERVICE WORKERS** -->
+    <!-- ESTE SCRIPT DEVE SER REMOVIDO APÓS O TESTE DE LIMPEZA -->
+    <script>
+        console.log("DEBUG: Tentando desregistrar Service Workers existentes...");
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                console.log('DEBUG: Registros de SW encontrados:', registrations.length);
+                if (registrations.length > 0) {
+                    let unregisteredCount = 0;
+                    registrations.forEach(function(registration) {
+                        registration.unregister().then(function(success) {
+                            if (success) {
+                                console.log('DEBUG: Service Worker desregistrado:', registration.scope);
+                                unregisteredCount++;
+                            } else {
+                                console.warn('DEBUG: Falha ao desregistrar Service Worker:', registration.scope);
+                            }
+                        }).catch(function(error) {
+                            console.error('DEBUG: Erro na desregistro do Service Worker:', error);
+                        });
+                    });
+                    setTimeout(() => { // Dê um tempo para as desregistrações ocorrerem
+                        alert('DEBUG: Tentativa de desregistro de Service Workers concluída. SWs desregistrados: ' + unregisteredCount + '. A página será recarregada.');
+                        window.location.reload(true); // Força um recarregamento sem cache
+                    }, 1500); // 1.5 segundos
+                } else {
+                    alert('DEBUG: Nenhum Service Worker ativo encontrado para desregistrar. A página será recarregada limpa.');
+                    setTimeout(() => { window.location.reload(true); }, 500); // Recarrega mais rápido
+                }
+            }).catch(function(error) {
+                console.error('DEBUG: Erro ao obter registros de Service Worker:', error);
+                alert('DEBUG: Erro ao obter registros de SW: ' + error.message + '. A página será recarregada.');
+                setTimeout(() => { window.location.reload(true); }, 500);
+            });
+        } else {
+            alert('DEBUG: Service Workers não suportados ou não encontrados no navegador. A página será recarregada.');
+            setTimeout(() => { window.location.reload(true); }, 500);
+        }
+    </script>
+    <!-- **FIM DO SCRIPT TEMPORÁRIO** -->
+
     <!-- **CÓDIGO DE INTEGRAÇÃO DO ONESIGNAL** -->
     <!-- Este script carrega o SDK principal do OneSignal AGORA LOCALMENTE -->
     <script src="OneSignalSDK.page.js" defer></script> 
@@ -21,7 +62,6 @@
         console.log("DEBUG: OneSignalDeferred.push executado."); // DEBUG
 
         // SÓCIO: COLOQUE SEU ONESIGNAL APP ID AQUI!
-        // Você encontra ele no painel do OneSignal, em "Settings" > "Keys & IDs"
         await OneSignal.init({
           appId: "35838c3a-dc5d-4920-8b1b-117eedd90dba", // SUBSTITUA AQUI COM O SEU APP ID REAL DO ONESIGNAL!
           serviceWorkerPath: "OneSignalSDKWorker.js", 
@@ -236,7 +276,8 @@
 
     <script>
         // Este alerta deve aparecer assim que a página carrega.
-        alert("DEBUG: App Carregado!"); 
+        // Já removido o alerta, pois sabemos que a página carrega.
+        // alert("DEBUG: App Carregado!"); 
         console.log("DEBUG: App Carregado!"); // DEBUG
         
         // Mapeamento das plataformas com suas logos.
